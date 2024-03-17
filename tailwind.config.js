@@ -26,6 +26,9 @@ module.exports = {
         textWhite: "var(--text-white)",
         textBlack: "var(--text-black)",
       },
+      borderColor: {
+        primaryColor: "var(--primary-color)",
+      },
     },
   },
   plugins: [],

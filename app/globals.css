@@ -81,11 +81,7 @@ body {
   font-size: calc(0.6vh + 0.45vw + 8px);
   scroll-behavior: smooth;
   box-sizing: border-box;
-  color: inherit;
   text-overflow: ellipsis;
-  text-decoration: inherit;
-  border: inherit;
-  outline: inherit;
 }
 *::selection {
   background: var(--primary-color);
@@ -94,7 +90,7 @@ body {
 
 input {
   color: var(--color-primary);
-  border: 1px solid var(--color-secondary);
+  border: 1px solid transparent;
   transition: 0.1s ease;
   background: var(--bg-primary);
   padding: 0 1rem;
@@ -115,7 +111,7 @@ textarea {
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   color: var(--color-primary);
-  border: 1px solid var(--color-secondary);
+  border: 1px solid transparent;
   transition: 0.1s ease;
   background: var(--bg-primary);
   font-size: 1rem;
@@ -131,7 +127,6 @@ img {
   background: var(--bg-gradient);
   -webkit-background-clip: text;
 }
-
 /* .svg {
   position: absolute;
   bottom: 0;

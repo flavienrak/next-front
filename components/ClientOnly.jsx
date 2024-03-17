@@ -9,10 +9,5 @@ export default function ClientOnly({ children }) {
     setMounted(true);
   }, []);
 
-  if (typeof window === "undefined") {
-    return null;
-  }
-  if (!mounted) return null;
-
-  return <>{children}</>;
+  if (mounted) return <>{children}</>;
 }
