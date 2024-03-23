@@ -1,0 +1,7 @@
+.link:hover label {
+  transform: translateX(0.5rem);
+}
+.link:hover i,
+.link:hover span {
+  color: var(--primary-color);
+}

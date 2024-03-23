@@ -37,7 +37,7 @@ export default function HomeContainer() {
 
   return (
     <ClientOnly>
-      <div className="min-h-[100vh] gap-4 flex items-center justify-center flex-col">
+      <div className="min-h-[100vh] gap-4 flex items-center justify-center flex-col w-full">
         <div className="w-full flex items-center justify-center py-2">
           <Link
             href={"/dashboard"}

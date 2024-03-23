@@ -3,11 +3,12 @@
 import qs from "query-string";
 
 import { createContext, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export const UidContext = createContext();
 
 export default function UidProvider({ children }) {
+  const path = usePathname();
   const params = useSearchParams();
   const [currentQuery, setCurrentQuery] = useState({});
 
@@ -18,7 +19,7 @@ export default function UidProvider({ children }) {
   }, [params]);
 
   return (
-    <UidContext.Provider value={{ currentQuery }}>
+    <UidContext.Provider value={{ currentQuery, path }}>
       {children}
     </UidContext.Provider>
   );

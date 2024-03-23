@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Home() {
   return (
     <>
-      <div className="flex items-center flex-col gap-6 justify-center min-h-[100vh]">
+      <div className="flex items-center flex-col gap-6 justify-center min-h-[100vh] w-full">
         <h1 className="w-max text-6xl font-bold bgText">Bienvenue</h1>
         <Link
           href={"/home"}

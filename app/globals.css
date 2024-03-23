@@ -9,7 +9,7 @@ body {
   --primary-color: #6363ee;
   /* --blue: #0095f6; */
 
-  --secondary-color: hsl(252, 100%, 90%);
+  --secondary-color: #d6ccff;
 
   --bg: #f0f0f5;
   --bg-secondary: #fcfcfc;
@@ -24,8 +24,8 @@ body {
   --gray: #aaa;
   --secondary: #d6ccff;
 
-  --yellow: #e6d14c;
-  --success: #4bb543;
+  --yellow: #ffd64a;
+  --green: #4bb543;
   --blue: #4cade6;
   --purple: #6363ee;
 
@@ -87,6 +87,43 @@ body {
   background: var(--primary-color);
   color: var(--text-white);
 }
+body {
+  width: 100%;
+  position: relative;
+  scrollbar-color: var(--gris) transparent;
+}
+div,
+label,
+li,
+i {
+  width: max-content;
+}
+
+foreignObject {
+  cursor: default;
+}
+.apexcharts-tooltip-title,
+.apexcharts-legend,
+.apexcharts-menu-item {
+  width: 100%;
+}
+
+.apexcharts-legend {
+  display: flex;
+  gap: 1rem;
+}
+.apexcharts-legend-series {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.apexcharts-legend-text {
+  font-size: 1rem !important;
+}
+.apexcharts-legend-marker {
+  width: 0.9rem !important;
+  height: 0.9rem !important;
+}
 
 input {
   color: var(--color-primary);
@@ -118,6 +155,46 @@ textarea {
   outline: none;
   caret-color: var(--color-primary);
 }
+input[type="radio"] {
+  appearance: none;
+  border-radius: 50%;
+  transform: scale(0.75);
+  width: max-content;
+  padding: 0;
+  height: max-content;
+  color: var(--white);
+  border: 1px solid var(--white);
+  background: transparent;
+}
+
+input[type="radio"]::before {
+  content: "";
+  border-radius: 50%;
+  width: 0.75rem;
+  height: 0.75rem;
+  font-size: 0.6rem;
+  padding: 0.25rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  transform-origin: bottom center;
+  transform: translate(-50%, 15%) scale(0);
+  transition: transform 0.2s ease-in;
+}
+
+input[type="radio"]:checked {
+  border-color: transparent;
+  transform: scale(1);
+  box-shadow: none;
+  outline: none;
+  border-color: var(--primary-color);
+}
+input[type="radio"]:checked::before {
+  background-color: var(--primary-color);
+  content: "\2713";
+  transform: translate(0) scale(1);
+}
 
 img {
   user-select: none;
@@ -125,6 +202,13 @@ img {
 .bgText {
   color: transparent;
   background: var(--bg-gradient);
+  -webkit-background-clip: text;
+}
+.bgImg {
+  color: transparent;
+  background-image: url("/eq.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
   -webkit-background-clip: text;
 }
 /* .svg {
