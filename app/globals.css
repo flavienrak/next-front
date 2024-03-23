@@ -87,6 +87,7 @@ body {
   background: var(--primary-color);
   color: var(--text-white);
 }
+
 body {
   width: 100%;
   position: relative;
@@ -94,6 +95,7 @@ body {
 }
 div,
 label,
+span,
 li,
 i {
   width: max-content;

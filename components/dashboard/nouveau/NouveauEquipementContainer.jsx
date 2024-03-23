@@ -14,13 +14,13 @@ import { BiCalendar } from "react-icons/bi";
 
 const options = [
   {
-    label: "Serveur",
+    label: "serveur",
   },
   {
-    label: "Routeur",
+    label: "routeur",
   },
   {
-    label: "Commutateur",
+    label: "commutateur",
   },
 ];
 
@@ -32,8 +32,8 @@ export default function NouveauEquipementContainer() {
   const bottom = useRef(null);
   const form = useRef(null);
 
-  const [category, setCategory] = useState("Serveur");
   const [showFilter, setShowFilter] = useState(false);
+  const [categorie, setCategorie] = useState("serveur");
 
   const [nom, setNom] = useState({
     value: "",
@@ -340,6 +340,7 @@ export default function NouveauEquipementContainer() {
     ) {
       setIsLoading(true);
       const res = await createServerController({
+        categorie: categorie,
         nom: nom.value,
         adresseIP: adresseIP.value,
         dateInstallation: dateInstallation.value,
@@ -359,7 +360,7 @@ export default function NouveauEquipementContainer() {
   };
 
   return (
-    <div className="px-8 w-full flex-1 flex py-2">
+    <div className="w-full flex-1 flex">
       <form
         ref={form}
         onSubmit={handleSubmit}
@@ -370,15 +371,15 @@ export default function NouveauEquipementContainer() {
             <h1 className="text-2xl text-white w-max pl-1 flex items-center">
               Nouvel equipement
             </h1>
-            <label className="text-green-500 text-xs bg-green-950 min-w-28 px-4 rounded-3xl h-full flex items-center justify-center">
-              {category}
+            <label className="text-green-500 capitalize text-xs bg-green-950 min-w-28 px-4 rounded-3xl h-full flex items-center justify-center">
+              {categorie}
             </label>
           </div>
 
-          {/* category */}
+          {/* categorie */}
           <div className="flex gap-4 w-1/3">
             <label
-              htmlFor="category"
+              htmlFor="categorie"
               className="w-28 whitespace-nowrap bg-primary rounded-md text-slate-50 text-xs flex justify-center items-center"
             >
               Categorie :
@@ -391,8 +392,8 @@ export default function NouveauEquipementContainer() {
                 id="filter"
                 type="text"
                 readOnly
-                value={category}
-                className={`peer cursor-default text-xs border text-slate-200 bg-[#241e38] h-9 ${
+                value={categorie}
+                className={`peer capitalize cursor-default text-xs border text-slate-200 bg-[#241e38] h-9 ${
                   showFilter ? "border-primaryColor" : "border-transparent"
                 }`}
               />
@@ -413,9 +414,9 @@ export default function NouveauEquipementContainer() {
                   {options.map((option) => (
                     <div className={"h-full w-full"} key={option.label}>
                       <label
-                        onClick={() => setCategory(option.label)}
-                        className={`w-full flex items-center gap-2 px-2 rounded-md py-2 ${
-                          category === option.label
+                        onClick={() => setCategorie(option.label)}
+                        className={`w-full capitalize flex items-center gap-2 px-2 rounded-md py-2 ${
+                          categorie === option.label
                             ? "bg-[#241e38]"
                             : "group cursor-pointer"
                         }`}
@@ -436,11 +437,21 @@ export default function NouveauEquipementContainer() {
           <>
             <div className="flex w-full flex-col rounded-md bg-[#241e38] relative">
               {/* middle */}
-              <Link href={"/dashboard"}>
+              <Link
+                href={{
+                  pathname: "/dashboard",
+                  query: {
+                    active: "equipements",
+                    view: "grid",
+                    filter: "all",
+                  },
+                }}
+              >
                 <i className="text-slate-50 absolute w-max right-5 top-5">
                   <GrClose size={"1rem"} />
                 </i>
               </Link>
+
               <div className="p-8 w-full">
                 <div className="grid grid-cols-3 gap-y-2 gap-x-4 w-full">
                   {/* nom */}

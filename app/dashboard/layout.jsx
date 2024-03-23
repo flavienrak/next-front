@@ -3,13 +3,13 @@
 import styles from "@/styles/dashboard/DashboardContainer.module.css";
 import Link from "next/link";
 import Image from "next/image";
+import ClientOnly from "@/components/ClientOnly";
 
 import { IoLogOutOutline } from "react-icons/io5";
-import { RiMenu5Fill, RiSettings4Line, RiUser4Line } from "react-icons/ri";
+import { RiSettings4Line, RiUser4Line } from "react-icons/ri";
 import { VscBell } from "react-icons/vsc";
 import { useContext, useEffect, useState } from "react";
 import { UidContext } from "@/providers/UidProvider";
-import ClientOnly from "@/components/ClientOnly";
 import { BiFoodMenu } from "react-icons/bi";
 
 const menu = [
@@ -18,22 +18,27 @@ const menu = [
     active: "general",
   },
   {
-    label: "Utilisateurs",
-    active: "user",
-  },
-  {
     label: "Equipements",
-    active: "equipement",
+    active: "equipements",
     query: {
       view: "grid",
       filter: "all",
     },
   },
   {
+    label: "Nouveau",
+    active: "nouveau",
+  },
+  {
+    label: "Utilisateurs",
+    active: "user",
+  },
+  {
     label: "Statistiques",
     active: "stat",
   },
 ];
+
 const profilMenu = [
   {
     label: "Profil",
@@ -88,10 +93,18 @@ export default function DashboardLayout({ children }) {
                   quipements
                 </p>
               </div>
-              <div className="flex items-center gap-4 justify-between">
-                <label className="h-full flex items-center justify-center border border-primaryColor text-xs px-2.5 rounded-md cursor-pointer transition-all duration-100 text-primaryColor">
-                  Code source
-                </label>
+
+              <div className="flex items-center gap-2 justify-between w-48">
+                <Link
+                  href={"https://github.com/flavienrak/next-front"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-full w-max"
+                >
+                  <label className="h-full flex items-center justify-center border border-primaryColor text-xs px-4 rounded-3xl cursor-pointer transition-all duration-100 text-primaryColor">
+                    Code source
+                  </label>
+                </Link>
                 <div className="w-max">
                   <i className="w-[2rem] h-[2rem] text-primaryColor bg-[#241e38] rounded-full  flex items-center justify-center">
                     <VscBell size={"1.15rem"} />
@@ -154,11 +167,8 @@ export default function DashboardLayout({ children }) {
                     <Link
                       key={m.active}
                       href={{
-                        pathname: path,
-                        query: {
-                          active: m.active,
-                          ...m.query,
-                        },
+                        pathname: "/dashboard",
+                        query: { active: m.active, ...m.query },
                       }}
                       className={`text-xs w-max border-b-2 cursor-pointer transition-all duration-150 hover:text-primaryColor ${
                         currentQuery.active === m.active
