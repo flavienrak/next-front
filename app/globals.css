@@ -16,6 +16,7 @@ body {
   --bg-primary: #f0f0f5;
 
   --gray-1: #697c89;
+  --gray-1: #cfe64c;
 
   --menu: rgba(0, 0, 0, 0.6);
 
@@ -85,6 +86,7 @@ body {
 }
 *::selection {
   background: var(--primary-color);
+  /* background: #d279ee; */
   color: var(--text-white);
 }
 
@@ -103,6 +105,15 @@ i {
 
 foreignObject {
   cursor: default;
+}
+.toolbar {
+  display: flex;
+  width: 100%;
+  gap: 2rem;
+  justify-content: center;
+}
+.toolbar button {
+  width: max-content;
 }
 .apexcharts-tooltip-title,
 .apexcharts-legend,
@@ -165,7 +176,6 @@ input[type="radio"] {
   padding: 0;
   height: max-content;
   color: var(--white);
-  border: 1px solid var(--white);
   background: transparent;
 }
 
@@ -186,18 +196,21 @@ input[type="radio"]::before {
 }
 
 input[type="radio"]:checked {
-  border-color: transparent;
   transform: scale(1);
   box-shadow: none;
   outline: none;
-  border-color: var(--primary-color);
 }
 input[type="radio"]:checked::before {
   background-color: var(--primary-color);
   content: "\2713";
   transform: translate(0) scale(1);
 }
-
+.buttonGradient {
+  background: linear-gradient(33deg, #d279ee, #f8c390);
+}
+.boxShadow {
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
 img {
   user-select: none;
 }

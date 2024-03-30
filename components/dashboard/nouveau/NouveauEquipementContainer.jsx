@@ -1,16 +1,21 @@
 "use client";
 
 import Link from "next/link";
+import qs from "query-string";
 
 import { isEmpty } from "@/lib/utils/isEmpty";
-import { useEffect, useRef, useState } from "react";
-import { createServerController } from "@/lib/controllers/equipement.controller";
+import { useContext, useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import { createEquipementController } from "@/lib/controllers/equipement.controller";
 
 import { BsBookmarkPlus } from "react-icons/bs";
 import { GrClose } from "react-icons/gr";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { PiWarningCircleFill } from "react-icons/pi";
 import { BiCalendar } from "react-icons/bi";
+import { useRouter } from "next/navigation";
+import { ToastContext } from "@/providers/ToastProvider";
+import { UidContext } from "@/providers/UidProvider";
 
 const options = [
   {
@@ -29,6 +34,11 @@ function isNumber(chaine) {
 }
 
 export default function NouveauEquipementContainer() {
+  const { user } = useSelector((state) => state.user);
+  const { push } = useRouter();
+  const { handleShowToast } = useContext(ToastContext);
+  const { currentQuery } = useContext(UidContext);
+
   const bottom = useRef(null);
   const form = useRef(null);
 
@@ -50,15 +60,46 @@ export default function NouveauEquipementContainer() {
     error: "Date d'installation requis",
     valid: false,
   });
+
   const [sysExploitation, setSysExploitation] = useState({
     value: "",
     error: "Systeme d'exploitation requis",
     valid: false,
   });
+
+  const [passerelle, setPasserelle] = useState({
+    value: "",
+    error: "Passerelle par defaut requis",
+    valid: false,
+  });
+  const [protocoleRoutage, setProtocoleRoutage] = useState({
+    value: "",
+    error: "Protocole de routage requis",
+    valid: false,
+  });
+
+  const [nbPorts, setNbPorts] = useState({
+    value: "",
+    error: "Nombre de ports requis",
+    valid: false,
+  });
+
+  const [typePorts, setTypePorts] = useState({
+    value: "",
+    error: "Type de ports requis",
+    valid: false,
+  });
+
+  const [qualiteService, setQualiteService] = useState({
+    value: "",
+    error: "Qualite de service requis",
+    valid: false,
+  });
+
   const [description, setDescription] = useState({
     value: "",
     error: "",
-    valid: false,
+    valid: true,
   });
   const [capRAM, setCapRAM] = useState({
     value: null,
@@ -73,26 +114,25 @@ export default function NouveauEquipementContainer() {
   const [debit, setDebit] = useState({
     value: null,
     error: "",
-    valid: false,
+    valid: true,
   });
   const [tempsConnexion, setConTime] = useState({
     value: null,
     error: "",
-    valid: false,
+    valid: true,
   });
   const [tauxErreur, setTauxErreur] = useState({
     value: null,
     error: "",
-    valid: false,
+    valid: true,
   });
   const [tempsReponse, setResTime] = useState({
     value: null,
     error: "",
-    valid: false,
+    valid: true,
   });
 
   const [isSubmit, setIsSubmit] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (form?.current) {
@@ -125,6 +165,58 @@ export default function NouveauEquipementContainer() {
       }));
     }
 
+    // passerelle
+    if (passerelle.value?.trim().length > 2) {
+      setPasserelle((prev) => ({ ...prev, valid: true, error: "" }));
+    } else if (passerelle.value?.trim().length < 3) {
+      setPasserelle((prev) => ({
+        ...prev,
+        valid: false,
+        error: isEmpty(passerelle.value.trim())
+          ? "Passerelle par defaut requis"
+          : "Passerelle par defaut invalide",
+      }));
+    }
+
+    // protocole de routage
+    if (protocoleRoutage.value?.trim().length > 2) {
+      setProtocoleRoutage((prev) => ({ ...prev, valid: true, error: "" }));
+    } else if (protocoleRoutage.value?.trim().length < 3) {
+      setProtocoleRoutage((prev) => ({
+        ...prev,
+        valid: false,
+        error: isEmpty(protocoleRoutage.value.trim())
+          ? "Protocole de routage requis"
+          : "Protocole de routage invalide",
+      }));
+    }
+
+    // type ports
+    if (typePorts.value?.trim().length > 2) {
+      setTypePorts((prev) => ({ ...prev, valid: true, error: "" }));
+    } else if (typePorts.value?.trim().length < 3) {
+      setTypePorts((prev) => ({
+        ...prev,
+        valid: false,
+        error: isEmpty(typePorts.value.trim())
+          ? "Type de ports requis"
+          : "Type de ports invalide",
+      }));
+    }
+
+    // Qualite de service
+    if (qualiteService.value?.trim().length > 2) {
+      setQualiteService((prev) => ({ ...prev, valid: true, error: "" }));
+    } else if (qualiteService.value?.trim().length < 3) {
+      setQualiteService((prev) => ({
+        ...prev,
+        valid: false,
+        error: isEmpty(qualiteService.value.trim())
+          ? "Qualite de service requis"
+          : "Qualite de service invalide",
+      }));
+    }
+
     // systeme d'exploitation
     if (sysExploitation.value?.trim().length > 2) {
       setSysExploitation((prev) => ({ ...prev, valid: true, error: "" }));
@@ -150,7 +242,16 @@ export default function NouveauEquipementContainer() {
           : "",
       }));
     }
-  }, [nom.value, adresseIP.value, sysExploitation.value, description.value]);
+  }, [
+    nom.value,
+    adresseIP.value,
+    sysExploitation.value,
+    description.value,
+    passerelle.value,
+    protocoleRoutage.value,
+    qualiteService.value,
+    typePorts.value,
+  ]);
 
   useEffect(() => {
     if (form?.current) {
@@ -178,6 +279,17 @@ export default function NouveauEquipementContainer() {
         error: !isEmpty(capStockage.value)
           ? "Stockage invalide"
           : "Stockage requis",
+      }));
+    }
+
+    // nb ports
+    if (isNumber(nbPorts.value)) {
+      setNbPorts((prev) => ({ ...prev, valid: true, error: "" }));
+    } else if (nbPorts.value?.trim().length < 3) {
+      setNbPorts((prev) => ({
+        ...prev,
+        valid: false,
+        error: !isEmpty(nbPorts.value) ? "Nombre de ports invalide" : "",
       }));
     }
 
@@ -233,6 +345,7 @@ export default function NouveauEquipementContainer() {
     tauxErreur.value,
     tempsConnexion.value,
     tempsReponse.value,
+    nbPorts.value,
   ]);
 
   useEffect(() => {
@@ -327,33 +440,64 @@ export default function NouveauEquipementContainer() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      nom.valid &&
-      adresseIP.valid &&
-      sysExploitation.valid &&
-      debit.valid &&
-      tauxErreur.valid &&
-      description.valid &&
-      tempsConnexion.valid &&
-      tempsReponse.valid &&
-      dateInstallation.valid
-    ) {
-      setIsLoading(true);
-      const res = await createServerController({
-        categorie: categorie,
-        nom: nom.value,
-        adresseIP: adresseIP.value,
-        dateInstallation: dateInstallation.value,
-        description: description.value,
-        sysExploitation: sysExploitation.value,
-        capRAM: capRAM.value,
-        capStockage: capStockage.value,
-        debit: debit.value,
-        tempsConnexion: tempsConnexion.value,
-        tempsReponse: tempsReponse.value,
-        tauxErreur: tauxErreur.value,
-      });
-      console.log("res:", res);
+
+    if (nom.valid && adresseIP.valid && dateInstallation.valid) {
+      if (
+        (categorie === "serveur" &&
+          sysExploitation.valid &&
+          capRAM.valid &&
+          capStockage.valid) ||
+        (categorie === "routeur" &&
+          passerelle.valid &&
+          protocoleRoutage.valid &&
+          qualiteService.valid) ||
+        (categorie === "commutateur" &&
+          nbPorts.valid &&
+          typePorts.valid &&
+          qualiteService.valid)
+      ) {
+        const res = await createEquipementController({
+          userId: user.id,
+          categorie: categorie,
+          nom: nom.value,
+          adresseIP: adresseIP.value,
+          dateInstallation: dateInstallation.value,
+          description: description?.value,
+          sysExploitation: sysExploitation.value,
+          capRAM: capRAM.value,
+          capStockage: capStockage.value,
+          passerelle: passerelle.value,
+          protocoleRoutage: protocoleRoutage.value,
+          nbPorts: nbPorts.value,
+          typePorts: typePorts.value,
+          qualiteService: qualiteService.value,
+          debit: debit?.value,
+          tempsConnexion: tempsConnexion?.value,
+          tempsReponse: tempsReponse?.value,
+          tauxErreur: tauxErreur?.value,
+        });
+
+        if (res.id) {
+          handleShowToast({
+            value: "Nouvel equipement ajouté avec ",
+            strong: "succès.",
+            type: "success",
+          });
+
+          const url = qs.stringifyUrl(
+            {
+              url: "/dashboard",
+              query: {
+                active: "equipements",
+                view: "grid",
+                filter: "all",
+              },
+            },
+            { skipNull: true }
+          );
+          push(url);
+        }
+      }
     } else {
       setIsSubmit(true);
     }
@@ -368,10 +512,10 @@ export default function NouveauEquipementContainer() {
       >
         <div className="w-full flex items-center justify-between gap-4">
           <div className="flex gap-4 h-full">
-            <h1 className="text-2xl text-white w-max pl-1 flex items-center">
-              Nouvel equipement
+            <h1 className="text-2xl text-white w-max pl-1 font-semibold">
+              <span className="bgText text-2xl">Nouvel </span>equipement
             </h1>
-            <label className="text-green-500 capitalize text-xs bg-green-950 min-w-28 px-4 rounded-3xl h-full flex items-center justify-center">
+            <label className="bg-green-400 capitalize text-sm font-semibold text-white min-w-28 px-4 rounded-3xl h-full flex items-center justify-center">
               {categorie}
             </label>
           </div>
@@ -393,15 +537,13 @@ export default function NouveauEquipementContainer() {
                 type="text"
                 readOnly
                 value={categorie}
-                className={`peer capitalize cursor-default text-xs border text-slate-200 bg-[#241e38] h-9 ${
-                  showFilter ? "border-primaryColor" : "border-transparent"
-                }`}
+                className={`peer capitalize cursor-default text-xs text-slate-950 bg-white h-9`}
               />
               <i
                 className={`cursor-pointer transition-all duration-150 absolute right-2 w-max ${
                   showFilter
                     ? "text-primaryColor"
-                    : "hover:text-primaryColor text-slate-400"
+                    : "hover:text-primaryColor text-slate-950"
                 }`}
               >
                 <RiArrowDownSLine size="1rem" />
@@ -409,23 +551,39 @@ export default function NouveauEquipementContainer() {
               {showFilter && (
                 <div
                   id="filterOptions"
-                  className="absolute top-[2.75rem] z-10 p-1 left-0 w-full bg-[#151221] border border-slate-600 rounded-md"
+                  className="absolute boxShadow top-[2.75rem] z-10 p-1 left-0 w-full bg-white rounded-md"
                 >
                   {options.map((option) => (
-                    <div className={"h-full w-full"} key={option.label}>
+                    <Link
+                      href={{
+                        pathname: "/dashboard",
+                        query: {
+                          active: "nouveau",
+                          categorie: option.label,
+                        },
+                      }}
+                      className={"h-full w-full"}
+                      key={option.label}
+                    >
                       <label
                         onClick={() => setCategorie(option.label)}
                         className={`w-full capitalize flex items-center gap-2 px-2 rounded-md py-2 ${
-                          categorie === option.label
-                            ? "bg-[#241e38]"
+                          currentQuery.categorie === option.label
+                            ? "bg-primary"
                             : "group cursor-pointer"
                         }`}
                       >
-                        <span className="text-slate-50 select-none text-xs w-max group-hover:text-primaryColor whitespace-nowrap">
+                        <span
+                          className={`select-none text-xs w-max group-hover:text-primaryColor whitespace-nowrap ${
+                            categorie === option.label
+                              ? "text-white"
+                              : "text-slate-950"
+                          }`}
+                        >
                           {option.label}
                         </span>
                       </label>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
@@ -435,7 +593,7 @@ export default function NouveauEquipementContainer() {
 
         {true && (
           <>
-            <div className="flex w-full flex-col rounded-md bg-[#241e38] relative">
+            <div className="flex w-full flex-col rounded-md bg-white relative">
               {/* middle */}
               <Link
                 href={{
@@ -458,7 +616,7 @@ export default function NouveauEquipementContainer() {
                   <div className="w-full flex flex-col gap-1">
                     <label
                       htmlFor="debit"
-                      className="text-slate-50 flex items-center w-full justify-between text-sm"
+                      className="text-slate-950 flex items-center w-full justify-between text-sm"
                     >
                       Nom d{"'"}hote
                     </label>
@@ -468,14 +626,14 @@ export default function NouveauEquipementContainer() {
                           id="debit"
                           type="text"
                           value={nom.value}
-                          placeholder="Serveur web 1"
+                          placeholder="Nom de l'equipement"
                           onChange={(e) => {
                             setNom((prev) => ({
                               ...prev,
                               value: e.target.value,
                             }));
                           }}
-                          className={`peer px-3 caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(nom.error) && isSubmit
                               ? "border-red-400"
@@ -500,7 +658,7 @@ export default function NouveauEquipementContainer() {
                   <div className="w-full flex flex-col gap-1">
                     <label
                       htmlFor="debit"
-                      className="text-slate-50 flex items-center w-full justify-between text-sm"
+                      className="text-slate-950 flex items-center w-full justify-between text-sm"
                     >
                       Adresse IP
                     </label>
@@ -517,7 +675,7 @@ export default function NouveauEquipementContainer() {
                               value: e.target.value,
                             }));
                           }}
-                          className={`peer px-3 caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(adresseIP.error) && isSubmit
                               ? "border-red-400"
@@ -538,143 +696,381 @@ export default function NouveauEquipementContainer() {
                     </div>
                   </div>
 
-                  {/* sysExploitation */}
-                  <div className="w-full flex flex-col gap-1">
-                    <label
-                      htmlFor="debit"
-                      className="text-slate-50 flex items-center w-full justify-between text-sm"
-                    >
-                      Systeme d{"'"}exploitation
-                    </label>
-                    <div className="pl-1 w-full flex flex-col gap-1">
-                      <div className="flex h-full relative items-center gap-4 justify-between w-full">
-                        <input
-                          id="debit"
-                          type="text"
-                          value={sysExploitation.value}
-                          placeholder="Windows server"
-                          onChange={(e) => {
-                            setSysExploitation((prev) => ({
-                              ...prev,
-                              value: e.target.value,
-                            }));
-                          }}
-                          className={`peer px-3 caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                  {/* serveur */}
+                  {currentQuery.categorie === "serveur" && (
+                    <div className="w-full flex flex-col gap-1">
+                      <label
+                        htmlFor="debit"
+                        className="text-slate-950 flex items-center w-full justify-between text-sm"
+                      >
+                        Systeme d{"'"}exploitation
+                      </label>
+                      <div className="pl-1 w-full flex flex-col gap-1">
+                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                          <input
+                            id="debit"
+                            type="text"
+                            value={sysExploitation.value}
+                            placeholder="Windows server"
+                            onChange={(e) => {
+                              setSysExploitation((prev) => ({
+                                ...prev,
+                                value: e.target.value,
+                              }));
+                            }}
+                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(sysExploitation.error) && isSubmit
                               ? "border-red-400"
                               : "border-slate-600"
                           }`}
-                        />
-                      </div>
-                      {!isEmpty(sysExploitation.error) && isSubmit && (
-                        <div className={"flex gap-2 items-center text-red-400"}>
-                          <i>
-                            <PiWarningCircleFill size="1rem" />
-                          </i>
-                          <p className=" text-red-400 text-[0.6rem]">
-                            {sysExploitation.error}
-                          </p>
+                          />
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* capRAM */}
-                  <div className="w-full flex flex-col gap-1">
-                    <label
-                      htmlFor="debit"
-                      className="text-slate-50 flex items-center w-full justify-between text-sm"
-                    >
-                      RAM
-                      <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
-                        Go
+                        {!isEmpty(sysExploitation.error) && isSubmit && (
+                          <div
+                            className={"flex gap-2 items-center text-red-400"}
+                          >
+                            <i>
+                              <PiWarningCircleFill size="1rem" />
+                            </i>
+                            <p className=" text-red-400 text-[0.6rem]">
+                              {sysExploitation.error}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    </label>
-                    <div className="pl-1 w-full flex flex-col gap-1">
-                      <div className="flex h-full relative items-center gap-4 justify-between w-full">
-                        <input
-                          id="debit"
-                          type="text"
-                          placeholder="0"
-                          value={capRAM.value || ""}
-                          onChange={(e) => {
-                            setCapRAM((prev) => ({
-                              ...prev,
-                              value: e.target.value,
-                            }));
-                          }}
-                          className={`peer px-3 caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                    </div>
+                  )}
+
+                  {currentQuery.categorie === "serveur" && (
+                    <div className="w-full flex flex-col gap-1">
+                      <label
+                        htmlFor="debit"
+                        className="text-slate-950 flex items-center w-full justify-between text-sm"
+                      >
+                        RAM
+                        <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
+                          Go
+                        </div>
+                      </label>
+                      <div className="pl-1 w-full flex flex-col gap-1">
+                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                          <input
+                            id="debit"
+                            type="text"
+                            placeholder="0"
+                            value={capRAM.value || ""}
+                            onChange={(e) => {
+                              setCapRAM((prev) => ({
+                                ...prev,
+                                value: e.target.value,
+                              }));
+                            }}
+                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(capRAM.error) && isSubmit
                               ? "border-red-400"
                               : "border-slate-600"
                           }`}
-                        />
-                      </div>
-                      {!isEmpty(capRAM.error) && isSubmit && (
-                        <div className={"flex gap-2 items-center text-red-400"}>
-                          <i>
-                            <PiWarningCircleFill size="1rem" />
-                          </i>
-                          <p className=" text-red-400 text-[0.6rem]">
-                            {capRAM.error}
-                          </p>
+                          />
                         </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* stockage */}
-                  <div className="w-full flex flex-col gap-1">
-                    <label
-                      htmlFor="debit"
-                      className="text-slate-50 flex items-center w-full justify-between text-sm"
-                    >
-                      Stockage
-                      <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
-                        Go
+                        {!isEmpty(capRAM.error) && isSubmit && (
+                          <div
+                            className={"flex gap-2 items-center text-red-400"}
+                          >
+                            <i>
+                              <PiWarningCircleFill size="1rem" />
+                            </i>
+                            <p className=" text-red-400 text-[0.6rem]">
+                              {capRAM.error}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                    </label>
-                    <div className="pl-1 w-full flex flex-col gap-1">
-                      <div className="flex h-full relative items-center gap-4 justify-between w-full">
-                        <input
-                          id="debit"
-                          type="text"
-                          placeholder="0"
-                          value={capStockage.value || ""}
-                          onChange={(e) => {
-                            setCapStockage((prev) => ({
-                              ...prev,
-                              value: e.target.value,
-                            }));
-                          }}
-                          className={`peer px-3 caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                    </div>
+                  )}
+
+                  {currentQuery.categorie === "serveur" && (
+                    <div className="w-full flex flex-col gap-1">
+                      <label
+                        htmlFor="debit"
+                        className="text-slate-950 flex items-center w-full justify-between text-sm"
+                      >
+                        Stockage
+                        <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
+                          Go
+                        </div>
+                      </label>
+                      <div className="pl-1 w-full flex flex-col gap-1">
+                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                          <input
+                            id="debit"
+                            type="text"
+                            placeholder="0"
+                            value={capStockage.value || ""}
+                            onChange={(e) => {
+                              setCapStockage((prev) => ({
+                                ...prev,
+                                value: e.target.value,
+                              }));
+                            }}
+                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(capStockage.error) && isSubmit
                               ? "border-red-400"
                               : "border-slate-600"
                           }`}
-                        />
-                      </div>
-                      {!isEmpty(capStockage.error) && isSubmit && (
-                        <div className={"flex gap-2 items-center text-red-400"}>
-                          <i>
-                            <PiWarningCircleFill size="1rem" />
-                          </i>
-                          <p className=" text-red-400 text-[0.6rem]">
-                            {capStockage.error}
-                          </p>
+                          />
                         </div>
-                      )}
+                        {!isEmpty(capStockage.error) && isSubmit && (
+                          <div
+                            className={"flex gap-2 items-center text-red-400"}
+                          >
+                            <i>
+                              <PiWarningCircleFill size="1rem" />
+                            </i>
+                            <p className=" text-red-400 text-[0.6rem]">
+                              {capStockage.error}
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {/* routeur */}
+                  {currentQuery.categorie === "routeur" && (
+                    <div className="w-full flex flex-col gap-1">
+                      <label
+                        htmlFor="debit"
+                        className="text-slate-950 flex items-center w-full justify-between text-sm"
+                      >
+                        Passerelle par défaut
+                      </label>
+                      <div className="pl-1 w-full flex flex-col gap-1">
+                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                          <input
+                            id="debit"
+                            type="text"
+                            value={passerelle.value}
+                            placeholder="192.168.0.1"
+                            onChange={(e) => {
+                              setPasserelle((prev) => ({
+                                ...prev,
+                                value: e.target.value,
+                              }));
+                            }}
+                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          ${
+                            !isEmpty(passerelle.error) && isSubmit
+                              ? "border-red-400"
+                              : "border-slate-600"
+                          }`}
+                          />
+                        </div>
+                        {!isEmpty(passerelle.error) && isSubmit && (
+                          <div
+                            className={"flex gap-2 items-center text-red-400"}
+                          >
+                            <i>
+                              <PiWarningCircleFill size="1rem" />
+                            </i>
+                            <p className=" text-red-400 text-[0.6rem]">
+                              {passerelle.error}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {currentQuery.categorie === "routeur" && (
+                    <div className="w-full flex flex-col gap-1">
+                      <label
+                        htmlFor="debit"
+                        className="text-slate-950 flex items-center w-full justify-between text-sm"
+                      >
+                        Protocoles de routage
+                      </label>
+                      <div className="pl-1 w-full flex flex-col gap-1">
+                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                          <input
+                            id="debit"
+                            type="text"
+                            placeholder="RIP"
+                            value={protocoleRoutage.value || ""}
+                            onChange={(e) => {
+                              setProtocoleRoutage((prev) => ({
+                                ...prev,
+                                value: e.target.value,
+                              }));
+                            }}
+                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          ${
+                            !isEmpty(protocoleRoutage.error) && isSubmit
+                              ? "border-red-400"
+                              : "border-slate-600"
+                          }`}
+                          />
+                        </div>
+                        {!isEmpty(protocoleRoutage.error) && isSubmit && (
+                          <div
+                            className={"flex gap-2 items-center text-red-400"}
+                          >
+                            <i>
+                              <PiWarningCircleFill size="1rem" />
+                            </i>
+                            <p className=" text-red-400 text-[0.6rem]">
+                              {protocoleRoutage.error}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* commutateur */}
+                  {currentQuery.categorie === "commutateur" && (
+                    <div className="w-full flex flex-col gap-1">
+                      <label
+                        htmlFor="debit"
+                        className="text-slate-950 flex items-center w-full justify-between text-sm"
+                      >
+                        Nombre de ports
+                      </label>
+                      <div className="pl-1 w-full flex flex-col gap-1">
+                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                          <input
+                            id="debit"
+                            type="text"
+                            value={nbPorts.value}
+                            placeholder="0"
+                            onChange={(e) => {
+                              setNbPorts((prev) => ({
+                                ...prev,
+                                value: e.target.value,
+                              }));
+                            }}
+                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          ${
+                            !isEmpty(nbPorts.error) && isSubmit
+                              ? "border-red-400"
+                              : "border-slate-600"
+                          }`}
+                          />
+                        </div>
+                        {!isEmpty(nbPorts.error) && isSubmit && (
+                          <div
+                            className={"flex gap-2 items-center text-red-400"}
+                          >
+                            <i>
+                              <PiWarningCircleFill size="1rem" />
+                            </i>
+                            <p className=" text-red-400 text-[0.6rem]">
+                              {nbPorts.error}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {currentQuery.categorie === "commutateur" && (
+                    <div className="w-full flex flex-col gap-1">
+                      <label
+                        htmlFor="debit"
+                        className="text-slate-950 flex items-center w-full justify-between text-sm"
+                      >
+                        Types de ports
+                      </label>
+                      <div className="pl-1 w-full flex flex-col gap-1">
+                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                          <input
+                            id="debit"
+                            type="text"
+                            placeholder="RJ-45"
+                            value={typePorts.value || ""}
+                            onChange={(e) => {
+                              setTypePorts((prev) => ({
+                                ...prev,
+                                value: e.target.value,
+                              }));
+                            }}
+                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          ${
+                            !isEmpty(typePorts.error) && isSubmit
+                              ? "border-red-400"
+                              : "border-slate-600"
+                          }`}
+                          />
+                        </div>
+                        {!isEmpty(typePorts.error) && isSubmit && (
+                          <div
+                            className={"flex gap-2 items-center text-red-400"}
+                          >
+                            <i>
+                              <PiWarningCircleFill size="1rem" />
+                            </i>
+                            <p className=" text-red-400 text-[0.6rem]">
+                              {typePorts.error}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* qos */}
+                  {currentQuery.categorie !== "serveur" && (
+                    <div className="w-full flex flex-col gap-1">
+                      <label
+                        htmlFor="debit"
+                        className="text-slate-950 flex items-center w-full justify-between text-sm"
+                      >
+                        Qualite de Service - QoS
+                      </label>
+                      <div className="pl-1 w-full flex flex-col gap-1">
+                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                          <input
+                            id="debit"
+                            type="text"
+                            placeholder="IntServ"
+                            value={qualiteService.value || ""}
+                            onChange={(e) => {
+                              setQualiteService((prev) => ({
+                                ...prev,
+                                value: e.target.value,
+                              }));
+                            }}
+                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          ${
+                            !isEmpty(qualiteService.error) && isSubmit
+                              ? "border-red-400"
+                              : "border-slate-600"
+                          }`}
+                          />
+                        </div>
+                        {!isEmpty(qualiteService.error) && isSubmit && (
+                          <div
+                            className={"flex gap-2 items-center text-red-400"}
+                          >
+                            <i>
+                              <PiWarningCircleFill size="1rem" />
+                            </i>
+                            <p className=" text-red-400 text-[0.6rem]">
+                              {qualiteService.error}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* date d'installation */}
                   <div className="w-full flex flex-col gap-1">
                     <label
                       htmlFor="debit"
-                      className="text-slate-50 flex items-center w-full justify-between text-sm"
+                      className="text-slate-950 flex items-center w-full justify-between text-sm"
                     >
                       Date d{"'"}installation
                       <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
@@ -694,7 +1090,7 @@ export default function NouveauEquipementContainer() {
                               value: e.target.value,
                             }));
                           }}
-                          className={`peer px-3 caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(dateInstallation.error) && isSubmit
                               ? "border-red-400"
@@ -722,7 +1118,7 @@ export default function NouveauEquipementContainer() {
                   <div className="w-full flex flex-col gap-1">
                     <label
                       htmlFor="debit"
-                      className="text-slate-50 flex items-center w-full justify-between text-sm"
+                      className="text-slate-950 flex items-center w-full justify-between text-sm"
                     >
                       Debits
                       <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
@@ -742,7 +1138,7 @@ export default function NouveauEquipementContainer() {
                               value: e.target.value,
                             }));
                           }}
-                          className={`peer px-3 caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(debit.error) && isSubmit
                               ? "border-red-400"
@@ -767,7 +1163,7 @@ export default function NouveauEquipementContainer() {
                   <div className="w-full flex flex-col gap-1">
                     <label
                       htmlFor="debit"
-                      className="text-slate-50 flex items-center w-full justify-between text-sm"
+                      className="text-slate-950 flex items-center w-full justify-between text-sm"
                     >
                       Taux d{"'"} erreurs
                       <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
@@ -787,7 +1183,7 @@ export default function NouveauEquipementContainer() {
                               value: e.target.value,
                             }));
                           }}
-                          className={`peer px-3 caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(tauxErreur.error) && isSubmit
                               ? "border-red-400"
@@ -812,7 +1208,7 @@ export default function NouveauEquipementContainer() {
                   <div className="w-full flex flex-col gap-1 row-span-2">
                     <label
                       htmlFor="desc"
-                      className="text-slate-50 w-full text-sm"
+                      className="text-slate-950 w-full text-sm"
                     >
                       Description
                     </label>
@@ -829,7 +1225,7 @@ export default function NouveauEquipementContainer() {
                               value: e.target.value,
                             }));
                           }}
-                          className={`peer px-3 h-full caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent focus:border-primaryColor
+                          className={`peer px-3 h-full caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent focus:border-primaryColor
                           ${
                             !isEmpty(description.error) && isSubmit
                               ? "border-red-400"
@@ -854,7 +1250,7 @@ export default function NouveauEquipementContainer() {
                   <div className="w-full flex flex-col gap-1">
                     <label
                       htmlFor="debit"
-                      className="text-slate-50 flex items-center w-full justify-between text-sm"
+                      className="text-slate-950 flex items-center w-full justify-between text-sm"
                     >
                       Temps d{"'"}etablissements de la connexion
                       <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
@@ -874,7 +1270,7 @@ export default function NouveauEquipementContainer() {
                               value: e.target.value,
                             }));
                           }}
-                          className={`peer px-3 caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(tempsConnexion.error) && isSubmit
                               ? "border-red-400"
@@ -899,7 +1295,7 @@ export default function NouveauEquipementContainer() {
                   <div className="w-full flex flex-col gap-1">
                     <label
                       htmlFor="debit"
-                      className="text-slate-50 flex items-center w-full justify-between text-sm"
+                      className="text-slate-950 flex items-center w-full justify-between text-sm"
                     >
                       Temps de reponse
                       <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
@@ -919,7 +1315,7 @@ export default function NouveauEquipementContainer() {
                               value: e.target.value,
                             }));
                           }}
-                          className={`peer px-3 caret-slate-300 border text-xs text-slate-50 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                          className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(tempsReponse.error) && isSubmit
                               ? "border-red-400"
@@ -949,7 +1345,7 @@ export default function NouveauEquipementContainer() {
                 <button
                   type="reset"
                   onClick={handleReset}
-                  className="border border-red-400 h-9 rounded-md text-sm text-red-400 hover:bg-red-950"
+                  className="bg-red-400 h-9 rounded-md text-sm text-white hover:bg-red-500"
                 >
                   Annuler
                 </button>

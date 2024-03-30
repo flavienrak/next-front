@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 
 export function middleware(req) {
-  // if (req.nextUrl.pathname === "/dashboard") {
-  //   const hasActive = req.nextUrl.searchParams.has("active");
-  //   if (!hasActive) {
-  //     return NextResponse.redirect(
-  //       new URL("/dashboard?active=general", req.url)
-  //     );
-  //   }
-  // }
+  if (req.nextUrl.pathname === "/dashboard") {
+    const hasActive = req.nextUrl.searchParams.has("active");
+    if (!hasActive) {
+      return NextResponse.redirect(
+        new URL("/dashboard?active=general&stat=serveur", req.url)
+      );
+    }
+  }
   return NextResponse.next();
 }
 

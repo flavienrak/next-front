@@ -406,9 +406,9 @@ export default function DebitChart() {
   };
 
   return (
-    <div>
-      <div id="chart">
-        <div class="toolbar">
+    <div className="w-full">
+      <div id="chart" className="w-full">
+        <div className="toolbar flex w-full">
           <button
             id="one_month"
             onClick={() => updateData("one_month")}

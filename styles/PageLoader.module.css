@@ -41,6 +41,7 @@
 
 .box:hover::before {
   inset: -2rem 0;
+  color: #475569;
 }
 
 @keyframes animate {
