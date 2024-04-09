@@ -8,6 +8,8 @@ import userSlice from "./slices/userSlice";
 import persistSlice from "./slices/persistSlice";
 import usersSlice from "./slices/usersSlice";
 import equipementsSlice from "./slices/equipementsSlice";
+import dataSlice from "./slices/dataSlice";
+import notificationsSlice from "./slices/notificationsSlice";
 
 const createNoopStorage = () => {
   return {
@@ -39,6 +41,8 @@ const rootReducer = combineReducers({
   persistInfos: persistSlice,
   users: usersSlice,
   equipements: equipementsSlice,
+  data: dataSlice,
+  notifications: notificationsSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -5,28 +5,51 @@ import DashboardGeneral from "./DashboardGeneral";
 import NouveauEquipementContainer from "./nouveau/NouveauEquipementContainer";
 import AllEquipementsContainer from "./all-equipements/AllEquipementsContainer";
 import EquipementView from "./view/EquipementView";
-import Image from "next/image";
-
-import { UidContext } from "@/providers/UidProvider";
-import { useContext, useEffect, useState } from "react";
-import { redirect } from "next/navigation";
-import { useSelector } from "react-redux";
-
-import { isEmpty } from "@/lib/utils/isEmpty";
 import DashboardUser from "./DashboardUser";
 import EditEquipement from "./equipement/EditEquipement";
 import EquipementInfos from "./equipement/EquipementInfos";
 
+import { UidContext } from "@/providers/UidProvider";
+import { useContext, useEffect, useState } from "react";
+import { redirect } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { isEmpty } from "@/lib/utils/isEmpty";
+import { updateDataController } from "@/lib/controllers/equipement.controller";
+import { setActualData, updateDataInfos } from "@/redux/slices/dataSlice";
+import { updateNotifications } from "@/redux/slices/notificationsSlice";
+import NotificationsContainer from "./notifications/NotificationsContainer";
+
 export default function DashboardContainer() {
   const { currentQuery } = useContext(UidContext);
   const { user } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
   const [showFilter, setShowFilter] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      (async () => {
+        const res = await updateDataController();
+        if (res?.data && res?.notifications) {
+          dispatch(updateNotifications({ notifications: res.notifications }));
+          dispatch(updateDataInfos({ data: res.data }));
+          dispatch(
+            setActualData({
+              actualData: res.data[Number(currentQuery.equipement)],
+            })
+          );
+        }
+      })();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (isEmpty(user)) {
       redirect("/auth/login");
     }
-  }, []);
+  }, [user?.id]);
 
   useEffect(() => {
     if (showFilter) {
@@ -42,6 +65,61 @@ export default function DashboardContainer() {
       };
     }
   }, [showFilter]);
+
+  // const handleUpdateInitialData = () => {
+  //   const newData = {
+  //     1: { debit: { 30: 3 }, erreur: { 30: 3 } },
+  //     2: { debit: { 31: 3 }, erreur: { 31: 3 } },
+  //   };
+  //   // setInitialData((prev) => {
+  //   //   let newState = { ...prev };
+
+  //   //   Object.keys(newData).forEach((key) => {
+  //   //     if (newState[key]) {
+  //   //       // 1
+  //   //       Object.keys(newState[key]).forEach((type, indexType) => {
+  //   //         // debit
+  //   //         newState[key][type] = {
+  //   //           ...newState[key][type],
+  //   //           ...newData[key][type],
+  //   //         };
+
+  //   //         console.log(Object.keys(newState[key][type])[0]);
+
+  //   //         delete Object.keys(newState[key][type])[0];
+  //   //       });
+  //   //     }
+  //   //   });
+
+  //   //   return newState;
+  //   // });
+
+  //   setInitialData((prev) => {
+  //     let newState = { ...prev };
+
+  //     Object.keys(newData).forEach((idKey) => {
+  //       if (newState[idKey]) {
+  //         // id
+  //         Object.keys(newState[idKey]).forEach((typeKey) => {
+  //           if (newState[idKey][typeKey]) {
+  //             // type
+  //             const keys = Object.keys(newState[idKey][typeKey]);
+  //             if (keys.length > 0) {
+  //               delete newState[idKey][typeKey][keys[0]];
+  //             }
+  //             // Fusionner les nouvelles données avec les données mises à jour
+  //             newState[idKey][typeKey] = {
+  //               ...newState[idKey][typeKey],
+  //               ...newData[idKey][typeKey],
+  //             };
+  //           }
+  //         });
+  //       }
+  //     });
+
+  //     return newState;
+  //   });
+  // };
 
   if (!isEmpty(user))
     return (
@@ -97,6 +175,12 @@ export default function DashboardContainer() {
               {currentQuery.active === "user" && (
                 <div className="flex w-full h-full">
                   <DashboardUser />
+                </div>
+              )}
+
+              {currentQuery.active === "notifications" && (
+                <div className="flex w-full h-full flex-1">
+                  <NotificationsContainer />
                 </div>
               )}
             </section>

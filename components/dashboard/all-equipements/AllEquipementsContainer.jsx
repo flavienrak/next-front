@@ -12,21 +12,18 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import { CiGrid2H } from "react-icons/ci";
 import { BsArrowRightShort, BsBookmarkPlus, BsGrid } from "react-icons/bs";
 import { UidContext } from "@/providers/UidProvider";
-import {
-  deleteEquipementController,
-  getEquipementsController,
-} from "@/lib/controllers/equipement.controller";
+import { deleteEquipementController } from "@/lib/controllers/equipement.controller";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { BiMessageSquareEdit } from "react-icons/bi";
 import {
   deleteEquipementInfos,
-  fetchEquipementsInfos,
   setActualEquipement,
 } from "@/redux/slices/equipementsSlice";
 import { isEmpty } from "@/lib/utils/isEmpty";
 import { ToastContext } from "@/providers/ToastProvider";
 import { useRouter } from "next/navigation";
+import { setActualData } from "@/redux/slices/dataSlice";
 
 const views = [
   {
@@ -75,6 +72,7 @@ const options = [
 export default function AllEquipementsContainer() {
   const { currentQuery } = useContext(UidContext);
   const { equipements } = useSelector((state) => state.equipements);
+  const { data } = useSelector((state) => state.data);
   const { users } = useSelector((state) => state.users);
   const { handleShowToast } = useContext(ToastContext);
   const { push } = useRouter();
@@ -83,16 +81,6 @@ export default function AllEquipementsContainer() {
 
   const [showFilter, setShowFilter] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-
-  useEffect(() => {
-    (async () => {
-      const res = await getEquipementsController();
-
-      if (res?.equipements) {
-        dispatch(fetchEquipementsInfos({ equipements: res.equipements }));
-      }
-    })();
-  }, []);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -384,34 +372,25 @@ export default function AllEquipementsContainer() {
                           className="flex-1 flex flex-col w-full justify-between"
                           onClick={() => {
                             dispatch(setActualEquipement({ equipement }));
+                            dispatch(
+                              setActualData({ data: data[equipement.id] })
+                            );
                           }}
                         >
                           <div className="flex items-center w-full justify-center flex-1">
                             <div className="relative w-full h-20 rounded-sm ">
-                              {equipement.categorie === "routeur" && (
-                                <Image
-                                  src={"/routeur.png"}
-                                  alt=""
-                                  fill
-                                  objectFit="cover"
-                                />
-                              )}
-                              {equipement.categorie === "commutateur" && (
-                                <Image
-                                  src={"/switch.png"}
-                                  alt=""
-                                  fill
-                                  objectFit="cover"
-                                />
-                              )}
-                              {equipement.categorie === "serveur" && (
-                                <Image
-                                  src={"/serveur.png"}
-                                  alt=""
-                                  fill
-                                  objectFit="cover"
-                                />
-                              )}
+                              <Image
+                                src={
+                                  equipement.categorie === "routeur"
+                                    ? "/routeur.png"
+                                    : equipement.categorie === "commutateur"
+                                    ? "/switch.png"
+                                    : "/serveur.png"
+                                }
+                                alt=""
+                                fill
+                                objectFit="cover"
+                              />
                             </div>
                           </div>
                           <div className="flex items-center flex-col w-full">
@@ -441,16 +420,13 @@ export default function AllEquipementsContainer() {
 
           {/* table view */}
           {currentQuery.view === "table" && (
-            <section className="w-full flex flex-col bg-white h-full rounded-md">
-              <div className="w-full flex justify-between h-12 buttonGradient items-center rounded-t-md">
+            <section className="w-full flex flex-col bg-white h-full rounded-xl">
+              <div className="w-full flex justify-between h-12 buttonGradient items-center rounded-t-xl">
                 <label className="text-slate-50 px-5 text-sm w-1/5 font-semibold">
                   Categorie
                 </label>
                 <label className="text-slate-50 px-5 text-sm w-1/5 font-semibold">
                   Nom
-                </label>
-                <label className="text-slate-50 px-5 text-sm w-1/5 font-semibold">
-                  Systeme d{"'"}exploitation
                 </label>
                 <label className="text-slate-50 px-5 text-sm w-1/5 font-semibold">
                   Adresse IP
@@ -463,37 +439,27 @@ export default function AllEquipementsContainer() {
                 </label>
               </div>
               <div className="flex flex-col w-full scr">
-                {equipements.map((equipement) => (
+                {equipements.map((equipement, index) => (
                   <div
                     key={equipement.id}
-                    className="w-full flex justify-between h-12 items-center border-b border-slate-300 hover:bg-slate-200 cursor-default"
+                    className={`w-full flex justify-between h-12 items-center border-b border-slate-300 hover:bg-slate-200 cursor-default ${
+                      index % 2 !== 0 ? "bg-slate-100" : "bg-transparent"
+                    }`}
                   >
                     <label className="text-slate-950 font-semibold px-5 text-xs w-1/5 uppercase flex items-center gap-2">
                       <div className="relative w-[2rem] h-[2rem] min-w-[2rem] min-h-[2rem]">
-                        {equipement.categorie === "routeur" && (
-                          <Image
-                            src={"/routeur.png"}
-                            alt=""
-                            fill
-                            objectFit="cover"
-                          />
-                        )}
-                        {equipement.categorie === "commutateur" && (
-                          <Image
-                            src={"/switch.png"}
-                            alt=""
-                            fill
-                            objectFit="cover"
-                          />
-                        )}
-                        {equipement.categorie === "serveur" && (
-                          <Image
-                            src={"/serveur.png"}
-                            alt=""
-                            fill
-                            objectFit="cover"
-                          />
-                        )}
+                        <Image
+                          src={
+                            equipement.categorie === "routeur"
+                              ? "/routeur.png"
+                              : equipement.categorie === "commutateur"
+                              ? "/switch.png"
+                              : "/serveur.png"
+                          }
+                          alt=""
+                          fill
+                          objectFit="cover"
+                        />
                       </div>
                       {equipement.categorie}
                     </label>
@@ -503,16 +469,13 @@ export default function AllEquipementsContainer() {
                         query: {
                           active: "view",
                           equipement: equipement.id,
-                          option: "debit",
+                          type: "debit",
                         },
                       }}
                       className="text-slate-950 font-semibold px-5 text-xs w-1/5 hover:underline"
                     >
                       {equipement.nom}
                     </Link>
-                    <label className="text-slate-950 px-5 text-xs w-1/5">
-                      {equipement.sysExploitation}
-                    </label>
                     <label className="text-slate-950 px-5 text-xs w-1/5">
                       {equipement.adresseIP}
                     </label>
@@ -530,6 +493,9 @@ export default function AllEquipementsContainer() {
                         }}
                         onClick={() => {
                           dispatch(setActualEquipement({ equipement }));
+                          dispatch(
+                            setActualData({ data: data[equipement.id] })
+                          );
                         }}
                         className="bg-green-400 w-max px-5 h-8 flex items-center text-sm text-white rounded-3xl cursor-pointer transition-all duration-15"
                       >
@@ -548,6 +514,9 @@ export default function AllEquipementsContainer() {
                         <i
                           onClick={() => {
                             dispatch(setActualEquipement({ equipement }));
+                            dispatch(
+                              setActualData({ data: data[equipement.id] })
+                            );
                           }}
                           className="bg-primary text-white w-8 h-8 rounded-full flex items-center cursor-pointer transition-all duration-150"
                         >
@@ -555,7 +524,9 @@ export default function AllEquipementsContainer() {
                         </i>
                       </Link>
                       <i
-                        onClick={() => handleDeleteEquipement(equipement.id)}
+                        onClick={() => {
+                          handleDeleteEquipement(equipement.id);
+                        }}
                         className="bg-red-400 text-white w-8 h-8 rounded-full flex items-center cursor-pointer transition-all duration-150 hover:bg-red-500"
                       >
                         <FaRegTrashAlt size={"1rem"} />

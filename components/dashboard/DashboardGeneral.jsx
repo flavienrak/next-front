@@ -8,8 +8,6 @@ import { useDispatch } from "react-redux";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import { useContext, useEffect, useRef, useState } from "react";
 import { UidContext } from "@/providers/UidProvider";
-import { getUsersController } from "@/lib/controllers/user.controller";
-import { fetchUsersInfos } from "@/redux/slices/usersSlice";
 
 const maxVariation = 25;
 const bias = 0.7;
@@ -99,7 +97,7 @@ export default function DashboardGeneral() {
           show: false,
         },
         animations: {
-          enabled: false,
+          // enabled: false,
         },
       },
       title: {
@@ -160,7 +158,7 @@ export default function DashboardGeneral() {
             colors: "#475569",
           },
         },
-        tickAmount: 10,
+        // tickAmount: 10,
       },
       tooltip: {
         x: {
@@ -181,13 +179,6 @@ export default function DashboardGeneral() {
   };
 
   useEffect(() => {
-    (async () => {
-      const res = await getUsersController();
-      dispatch(fetchUsersInfos({ users: res.users }));
-    })();
-  }, []);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       const lastDate = new Date(categories[categories.length - 1]);
       const newDate = new Date(lastDate.getTime() + 1000);
@@ -204,7 +195,7 @@ export default function DashboardGeneral() {
       setDataServer((prev) => [...prev.slice(1), serverRandomValue]);
       setDataRouter((prev) => [...prev.slice(1), routeurRandom]);
       setDataCommutateur((prev) => [...prev.slice(1), commutateurRandom]);
-    }, 1000);
+    }, 3000);
 
     if (chartServeur?.current) {
       const updatedSeries = initialData.series.map((series, index) => {
@@ -258,6 +249,8 @@ export default function DashboardGeneral() {
       clearInterval(interval);
     };
   }, [categories, dataServer, dataRouter, dataCommutateur]);
+
+  useEffect(() => {}, []);
 
   // const date = new Date().toISOString();
 

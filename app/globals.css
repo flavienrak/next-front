@@ -102,6 +102,10 @@ li,
 i {
   width: max-content;
 }
+button {
+  /* background: linear-gradient(33deg, #d279ee, #f8c390); */
+  text-transform: capitalize;
+}
 
 foreignObject {
   cursor: default;

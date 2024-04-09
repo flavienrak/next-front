@@ -10,13 +10,15 @@ import { IoLogOutOutline } from "react-icons/io5";
 import { VscBell } from "react-icons/vsc";
 import { useContext, useEffect, useState } from "react";
 import { UidContext } from "@/providers/UidProvider";
-import { FaBarsStaggered, FaCircleUser } from "react-icons/fa6";
+import { FaCircleUser } from "react-icons/fa6";
+import { CgMenu } from "react-icons/cg";
 import { removeUserInfos } from "@/redux/slices/userSlice";
 import { useRouter } from "next/navigation";
 import { fetchUsersInfos } from "@/redux/slices/usersSlice";
 import { getUsersController } from "@/lib/controllers/user.controller";
 import { getEquipementsController } from "@/lib/controllers/equipement.controller";
 import { fetchEquipementsInfos } from "@/redux/slices/equipementsSlice";
+import { fetchDataInfos } from "@/redux/slices/dataSlice";
 
 const menu = [
   {
@@ -58,6 +60,7 @@ const menu = [
 export default function DashboardLayout({ children }) {
   const { currentQuery } = useContext(UidContext);
   const { user } = useSelector((state) => state.user);
+  const { notifications } = useSelector((state) => state.notifications);
   const { push } = useRouter();
   const dispatch = useDispatch();
 
@@ -70,7 +73,8 @@ export default function DashboardLayout({ children }) {
     })();
     (async () => {
       const res = await getEquipementsController();
-      if (res?.equipements) {
+      if (res?.equipements && res?.data) {
+        dispatch(fetchDataInfos({ data: res.data }));
         dispatch(fetchEquipementsInfos({ equipements: res.equipements }));
       }
     })();
@@ -120,11 +124,22 @@ export default function DashboardLayout({ children }) {
                     Code source
                   </label>
                 </Link>
-                <div className="w-max">
-                  <i className="w-[2rem] h-[2rem] text-white bg-primary rounded-full  flex items-center justify-center">
+                <Link
+                  href={{
+                    pathname: "/dashboard",
+                    query: {
+                      active: "notifications",
+                    },
+                  }}
+                  className="w-max"
+                >
+                  <i className="w-[2rem] h-[2rem] relative text-white bg-primary rounded-full  flex items-center justify-center">
                     <VscBell size={"1.15rem"} />
+                    {notifications.length > 0 && (
+                      <span className="absolute h-3 w-3 rounded-full bg-red-400 border-2 border-white -bottom-0.5 -right-0.5"></span>
+                    )}
                   </i>
-                </div>
+                </Link>
                 <div className="flex gap-2 group">
                   <div className="relative w-[2rem] h-[2rem] min-w-[2rem] min-h-[2rem] rounded-full">
                     <i className="text-white cursor-pointer rounded-full">
@@ -153,7 +168,7 @@ export default function DashboardLayout({ children }) {
             <div className="py-3 bg-white flex justify-between items-center px-4 w-full rounded-md">
               <div className="flex gap-3.5 items-center">
                 <i className="text-slate-900">
-                  <FaBarsStaggered size={"1rem"} />
+                  <CgMenu size={"1rem"} />
                 </i>
                 <div className="flex gap-6">
                   {menu.map((m) => (
@@ -163,13 +178,19 @@ export default function DashboardLayout({ children }) {
                         pathname: "/dashboard",
                         query: { ...m.query },
                       }}
-                      className={`text-sm w-max border-b-2 cursor-pointer transition-all duration-150 hover:text-primaryColor ${
+                      className={`relative text-sm w-max border-b-2 cursor-pointer transition-all duration-150 hover:text-primaryColor ${
                         currentQuery.active === m.query.active
                           ? "text-primaryColor font-medium  border-primaryColor"
                           : " text-slate-950  border-transparent"
                       }`}
                     >
                       {m.label}
+                      {m.query.active === "notifications" &&
+                        notifications.length > 0 && (
+                          <span className="absolute -top-3 -right-3 bg-red-400 px-2 py-1 text-white font-bold text-xs flex items-center justify-center rounded-full">
+                            {notifications.length}
+                          </span>
+                        )}
                     </Link>
                   ))}
                 </div>

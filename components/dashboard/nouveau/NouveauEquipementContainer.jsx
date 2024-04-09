@@ -698,326 +698,331 @@ export default function NouveauEquipementContainer() {
 
                   {/* serveur */}
                   {currentQuery.categorie === "serveur" && (
-                    <div className="w-full flex flex-col gap-1">
-                      <label
-                        htmlFor="debit"
-                        className="text-slate-950 flex items-center w-full justify-between text-sm"
-                      >
-                        Systeme d{"'"}exploitation
-                      </label>
-                      <div className="pl-1 w-full flex flex-col gap-1">
-                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
-                          <input
-                            id="debit"
-                            type="text"
-                            value={sysExploitation.value}
-                            placeholder="Windows server"
-                            onChange={(e) => {
-                              setSysExploitation((prev) => ({
-                                ...prev,
-                                value: e.target.value,
-                              }));
-                            }}
-                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                    <>
+                      {/* sysExploitation */}
+                      <div className="w-full flex flex-col gap-1">
+                        <label
+                          htmlFor="debit"
+                          className="text-slate-950 flex items-center w-full justify-between text-sm"
+                        >
+                          Systeme d{"'"}exploitation
+                        </label>
+                        <div className="pl-1 w-full flex flex-col gap-1">
+                          <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                            <input
+                              id="debit"
+                              type="text"
+                              value={sysExploitation.value}
+                              placeholder="Windows server"
+                              onChange={(e) => {
+                                setSysExploitation((prev) => ({
+                                  ...prev,
+                                  value: e.target.value,
+                                }));
+                              }}
+                              className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(sysExploitation.error) && isSubmit
                               ? "border-red-400"
                               : "border-slate-600"
                           }`}
-                          />
-                        </div>
-                        {!isEmpty(sysExploitation.error) && isSubmit && (
-                          <div
-                            className={"flex gap-2 items-center text-red-400"}
-                          >
-                            <i>
-                              <PiWarningCircleFill size="1rem" />
-                            </i>
-                            <p className=" text-red-400 text-[0.6rem]">
-                              {sysExploitation.error}
-                            </p>
+                            />
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {currentQuery.categorie === "serveur" && (
-                    <div className="w-full flex flex-col gap-1">
-                      <label
-                        htmlFor="debit"
-                        className="text-slate-950 flex items-center w-full justify-between text-sm"
-                      >
-                        RAM
-                        <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
-                          Go
+                          {!isEmpty(sysExploitation.error) && isSubmit && (
+                            <div
+                              className={"flex gap-2 items-center text-red-400"}
+                            >
+                              <i>
+                                <PiWarningCircleFill size="1rem" />
+                              </i>
+                              <p className=" text-red-400 text-[0.6rem]">
+                                {sysExploitation.error}
+                              </p>
+                            </div>
+                          )}
                         </div>
-                      </label>
-                      <div className="pl-1 w-full flex flex-col gap-1">
-                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
-                          <input
-                            id="debit"
-                            type="text"
-                            placeholder="0"
-                            value={capRAM.value || ""}
-                            onChange={(e) => {
-                              setCapRAM((prev) => ({
-                                ...prev,
-                                value: e.target.value,
-                              }));
-                            }}
-                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                      </div>
+
+                      {/* capRAM */}
+                      <div className="w-full flex flex-col gap-1">
+                        <label
+                          htmlFor="debit"
+                          className="text-slate-950 flex items-center w-full justify-between text-sm"
+                        >
+                          RAM
+                          <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
+                            Go
+                          </div>
+                        </label>
+                        <div className="pl-1 w-full flex flex-col gap-1">
+                          <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                            <input
+                              id="debit"
+                              type="text"
+                              placeholder="0"
+                              value={capRAM.value || ""}
+                              onChange={(e) => {
+                                setCapRAM((prev) => ({
+                                  ...prev,
+                                  value: e.target.value,
+                                }));
+                              }}
+                              className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(capRAM.error) && isSubmit
                               ? "border-red-400"
                               : "border-slate-600"
                           }`}
-                          />
-                        </div>
-                        {!isEmpty(capRAM.error) && isSubmit && (
-                          <div
-                            className={"flex gap-2 items-center text-red-400"}
-                          >
-                            <i>
-                              <PiWarningCircleFill size="1rem" />
-                            </i>
-                            <p className=" text-red-400 text-[0.6rem]">
-                              {capRAM.error}
-                            </p>
+                            />
                           </div>
-                        )}
+                          {!isEmpty(capRAM.error) && isSubmit && (
+                            <div
+                              className={"flex gap-2 items-center text-red-400"}
+                            >
+                              <i>
+                                <PiWarningCircleFill size="1rem" />
+                              </i>
+                              <p className=" text-red-400 text-[0.6rem]">
+                                {capRAM.error}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
 
-                  {currentQuery.categorie === "serveur" && (
-                    <div className="w-full flex flex-col gap-1">
-                      <label
-                        htmlFor="debit"
-                        className="text-slate-950 flex items-center w-full justify-between text-sm"
-                      >
-                        Stockage
-                        <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
-                          Go
-                        </div>
-                      </label>
-                      <div className="pl-1 w-full flex flex-col gap-1">
-                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
-                          <input
-                            id="debit"
-                            type="text"
-                            placeholder="0"
-                            value={capStockage.value || ""}
-                            onChange={(e) => {
-                              setCapStockage((prev) => ({
-                                ...prev,
-                                value: e.target.value,
-                              }));
-                            }}
-                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
-                          ${
-                            !isEmpty(capStockage.error) && isSubmit
-                              ? "border-red-400"
-                              : "border-slate-600"
-                          }`}
-                          />
-                        </div>
-                        {!isEmpty(capStockage.error) && isSubmit && (
-                          <div
-                            className={"flex gap-2 items-center text-red-400"}
-                          >
-                            <i>
-                              <PiWarningCircleFill size="1rem" />
-                            </i>
-                            <p className=" text-red-400 text-[0.6rem]">
-                              {capStockage.error}
-                            </p>
+                      {/* capStockage */}
+                      <div className="w-full flex flex-col gap-1">
+                        <label
+                          htmlFor="debit"
+                          className="text-slate-950 flex items-center w-full justify-between text-sm"
+                        >
+                          Stockage
+                          <div className="flex items-center gap-1 h-full justify-center text-slate-400 text-xs">
+                            Go
                           </div>
-                        )}
+                        </label>
+                        <div className="pl-1 w-full flex flex-col gap-1">
+                          <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                            <input
+                              id="debit"
+                              type="text"
+                              placeholder="0"
+                              value={capStockage.value || ""}
+                              onChange={(e) => {
+                                setCapStockage((prev) => ({
+                                  ...prev,
+                                  value: e.target.value,
+                                }));
+                              }}
+                              className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+      ${
+        !isEmpty(capStockage.error) && isSubmit
+          ? "border-red-400"
+          : "border-slate-600"
+      }`}
+                            />
+                          </div>
+                          {!isEmpty(capStockage.error) && isSubmit && (
+                            <div
+                              className={"flex gap-2 items-center text-red-400"}
+                            >
+                              <i>
+                                <PiWarningCircleFill size="1rem" />
+                              </i>
+                              <p className=" text-red-400 text-[0.6rem]">
+                                {capStockage.error}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
 
                   {/* routeur */}
                   {currentQuery.categorie === "routeur" && (
-                    <div className="w-full flex flex-col gap-1">
-                      <label
-                        htmlFor="debit"
-                        className="text-slate-950 flex items-center w-full justify-between text-sm"
-                      >
-                        Passerelle par défaut
-                      </label>
-                      <div className="pl-1 w-full flex flex-col gap-1">
-                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
-                          <input
-                            id="debit"
-                            type="text"
-                            value={passerelle.value}
-                            placeholder="192.168.0.1"
-                            onChange={(e) => {
-                              setPasserelle((prev) => ({
-                                ...prev,
-                                value: e.target.value,
-                              }));
-                            }}
-                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                    <>
+                      {/* passerelle */}
+                      <div className="w-full flex flex-col gap-1">
+                        <label
+                          htmlFor="debit"
+                          className="text-slate-950 flex items-center w-full justify-between text-sm"
+                        >
+                          Passerelle par défaut
+                        </label>
+                        <div className="pl-1 w-full flex flex-col gap-1">
+                          <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                            <input
+                              id="debit"
+                              type="text"
+                              value={passerelle.value}
+                              placeholder="192.168.0.1"
+                              onChange={(e) => {
+                                setPasserelle((prev) => ({
+                                  ...prev,
+                                  value: e.target.value,
+                                }));
+                              }}
+                              className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(passerelle.error) && isSubmit
                               ? "border-red-400"
                               : "border-slate-600"
                           }`}
-                          />
-                        </div>
-                        {!isEmpty(passerelle.error) && isSubmit && (
-                          <div
-                            className={"flex gap-2 items-center text-red-400"}
-                          >
-                            <i>
-                              <PiWarningCircleFill size="1rem" />
-                            </i>
-                            <p className=" text-red-400 text-[0.6rem]">
-                              {passerelle.error}
-                            </p>
+                            />
                           </div>
-                        )}
+                          {!isEmpty(passerelle.error) && isSubmit && (
+                            <div
+                              className={"flex gap-2 items-center text-red-400"}
+                            >
+                              <i>
+                                <PiWarningCircleFill size="1rem" />
+                              </i>
+                              <p className=" text-red-400 text-[0.6rem]">
+                                {passerelle.error}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
 
-                  {currentQuery.categorie === "routeur" && (
-                    <div className="w-full flex flex-col gap-1">
-                      <label
-                        htmlFor="debit"
-                        className="text-slate-950 flex items-center w-full justify-between text-sm"
-                      >
-                        Protocoles de routage
-                      </label>
-                      <div className="pl-1 w-full flex flex-col gap-1">
-                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
-                          <input
-                            id="debit"
-                            type="text"
-                            placeholder="RIP"
-                            value={protocoleRoutage.value || ""}
-                            onChange={(e) => {
-                              setProtocoleRoutage((prev) => ({
-                                ...prev,
-                                value: e.target.value,
-                              }));
-                            }}
-                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                      {/* protocoleRoutage */}
+                      <div className="w-full flex flex-col gap-1">
+                        <label
+                          htmlFor="debit"
+                          className="text-slate-950 flex items-center w-full justify-between text-sm"
+                        >
+                          Protocoles de routage
+                        </label>
+                        <div className="pl-1 w-full flex flex-col gap-1">
+                          <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                            <input
+                              id="debit"
+                              type="text"
+                              placeholder="RIP"
+                              value={protocoleRoutage.value || ""}
+                              onChange={(e) => {
+                                setProtocoleRoutage((prev) => ({
+                                  ...prev,
+                                  value: e.target.value,
+                                }));
+                              }}
+                              className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(protocoleRoutage.error) && isSubmit
                               ? "border-red-400"
                               : "border-slate-600"
                           }`}
-                          />
-                        </div>
-                        {!isEmpty(protocoleRoutage.error) && isSubmit && (
-                          <div
-                            className={"flex gap-2 items-center text-red-400"}
-                          >
-                            <i>
-                              <PiWarningCircleFill size="1rem" />
-                            </i>
-                            <p className=" text-red-400 text-[0.6rem]">
-                              {protocoleRoutage.error}
-                            </p>
+                            />
                           </div>
-                        )}
+                          {!isEmpty(protocoleRoutage.error) && isSubmit && (
+                            <div
+                              className={"flex gap-2 items-center text-red-400"}
+                            >
+                              <i>
+                                <PiWarningCircleFill size="1rem" />
+                              </i>
+                              <p className=" text-red-400 text-[0.6rem]">
+                                {protocoleRoutage.error}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
 
                   {/* commutateur */}
                   {currentQuery.categorie === "commutateur" && (
-                    <div className="w-full flex flex-col gap-1">
-                      <label
-                        htmlFor="debit"
-                        className="text-slate-950 flex items-center w-full justify-between text-sm"
-                      >
-                        Nombre de ports
-                      </label>
-                      <div className="pl-1 w-full flex flex-col gap-1">
-                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
-                          <input
-                            id="debit"
-                            type="text"
-                            value={nbPorts.value}
-                            placeholder="0"
-                            onChange={(e) => {
-                              setNbPorts((prev) => ({
-                                ...prev,
-                                value: e.target.value,
-                              }));
-                            }}
-                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                    <>
+                      {/* nbPorts */}
+                      <div className="w-full flex flex-col gap-1">
+                        <label
+                          htmlFor="debit"
+                          className="text-slate-950 flex items-center w-full justify-between text-sm"
+                        >
+                          Nombre de ports
+                        </label>
+                        <div className="pl-1 w-full flex flex-col gap-1">
+                          <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                            <input
+                              id="debit"
+                              type="text"
+                              value={nbPorts.value}
+                              placeholder="0"
+                              onChange={(e) => {
+                                setNbPorts((prev) => ({
+                                  ...prev,
+                                  value: e.target.value,
+                                }));
+                              }}
+                              className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(nbPorts.error) && isSubmit
                               ? "border-red-400"
                               : "border-slate-600"
                           }`}
-                          />
-                        </div>
-                        {!isEmpty(nbPorts.error) && isSubmit && (
-                          <div
-                            className={"flex gap-2 items-center text-red-400"}
-                          >
-                            <i>
-                              <PiWarningCircleFill size="1rem" />
-                            </i>
-                            <p className=" text-red-400 text-[0.6rem]">
-                              {nbPorts.error}
-                            </p>
+                            />
                           </div>
-                        )}
+                          {!isEmpty(nbPorts.error) && isSubmit && (
+                            <div
+                              className={"flex gap-2 items-center text-red-400"}
+                            >
+                              <i>
+                                <PiWarningCircleFill size="1rem" />
+                              </i>
+                              <p className=" text-red-400 text-[0.6rem]">
+                                {nbPorts.error}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
 
-                  {currentQuery.categorie === "commutateur" && (
-                    <div className="w-full flex flex-col gap-1">
-                      <label
-                        htmlFor="debit"
-                        className="text-slate-950 flex items-center w-full justify-between text-sm"
-                      >
-                        Types de ports
-                      </label>
-                      <div className="pl-1 w-full flex flex-col gap-1">
-                        <div className="flex h-full relative items-center gap-4 justify-between w-full">
-                          <input
-                            id="debit"
-                            type="text"
-                            placeholder="RJ-45"
-                            value={typePorts.value || ""}
-                            onChange={(e) => {
-                              setTypePorts((prev) => ({
-                                ...prev,
-                                value: e.target.value,
-                              }));
-                            }}
-                            className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
+                      {/* typePorts */}
+                      <div className="w-full flex flex-col gap-1">
+                        <label
+                          htmlFor="debit"
+                          className="text-slate-950 flex items-center w-full justify-between text-sm"
+                        >
+                          Types de ports
+                        </label>
+                        <div className="pl-1 w-full flex flex-col gap-1">
+                          <div className="flex h-full relative items-center gap-4 justify-between w-full">
+                            <input
+                              id="debit"
+                              type="text"
+                              placeholder="RJ-45"
+                              value={typePorts.value || ""}
+                              onChange={(e) => {
+                                setTypePorts((prev) => ({
+                                  ...prev,
+                                  value: e.target.value,
+                                }));
+                              }}
+                              className={`peer px-3 caret-slate-950 border text-xs text-slate-950 placeholder-slate-500  bg-transparent h-10 focus:border-primaryColor
                           ${
                             !isEmpty(typePorts.error) && isSubmit
                               ? "border-red-400"
                               : "border-slate-600"
                           }`}
-                          />
-                        </div>
-                        {!isEmpty(typePorts.error) && isSubmit && (
-                          <div
-                            className={"flex gap-2 items-center text-red-400"}
-                          >
-                            <i>
-                              <PiWarningCircleFill size="1rem" />
-                            </i>
-                            <p className=" text-red-400 text-[0.6rem]">
-                              {typePorts.error}
-                            </p>
+                            />
                           </div>
-                        )}
+                          {!isEmpty(typePorts.error) && isSubmit && (
+                            <div
+                              className={"flex gap-2 items-center text-red-400"}
+                            >
+                              <i>
+                                <PiWarningCircleFill size="1rem" />
+                              </i>
+                              <p className=" text-red-400 text-[0.6rem]">
+                                {typePorts.error}
+                              </p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
 
                   {/* qos */}

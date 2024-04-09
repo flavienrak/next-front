@@ -2,8 +2,8 @@
 
 import ClientOnly from "@/components/ClientOnly";
 import Link from "next/link";
-import qs from "query-string";
 import Image from "next/image";
+import qs from "query-string";
 
 import { useDispatch } from "react-redux";
 
@@ -11,39 +11,35 @@ import { isEmpty } from "@/lib/utils/isEmpty";
 import { UidContext } from "@/providers/UidProvider";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { useRouter } from "next/navigation";
 import { ToastContext } from "@/providers/ToastProvider";
-import { PiWarningCircleFill } from "react-icons/pi";
 import { GrClose } from "react-icons/gr";
 import {
   deleteEquipementController,
   getEquipementController,
-  updateEquipementController,
 } from "@/lib/controllers/equipement.controller";
 import {
   deleteEquipementInfos,
   setActualEquipement,
-  updateEquipementsInfos,
 } from "@/redux/slices/equipementsSlice";
 import { BiMessageSquareEdit } from "react-icons/bi";
-import { IoStatsChart } from "react-icons/io5";
 import { MdOutlineQueryStats } from "react-icons/md";
 import { FiTrash2 } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import { setActualData } from "@/redux/slices/dataSlice";
 
 function isNumber(chaine) {
   return !isNaN(parseFloat(chaine)) && isFinite(chaine);
 }
 
 export default function EquipementInfos() {
-  const { user } = useSelector((state) => state.user);
   const { currentQuery } = useContext(UidContext);
   const { handleShowToast } = useContext(ToastContext);
-  const { push } = useRouter();
   const { actualEquipement } = useSelector((state) => state.equipements);
 
   const bottom = useRef(null);
   const form = useRef(null);
   const dispatch = useDispatch();
+  const { push } = useRouter();
 
   const [showFilter, setShowFilter] = useState(false);
 
@@ -105,8 +101,9 @@ export default function EquipementInfos() {
       (async () => {
         const res = await getEquipementController(currentQuery.equipement);
 
-        if (res?.id) {
-          dispatch(setActualEquipement({ equipement: res }));
+        if (res?.data && res?.equipement) {
+          dispatch(setActualEquipement({ equipement: res.equipement }));
+          dispatch(setActualData({ equipement: res.data }));
 
           setNom({
             value: res.nom,
@@ -335,6 +332,18 @@ export default function EquipementInfos() {
         strong: "succès.",
         type: "success",
       });
+      const url = qs.stringifyUrl(
+        {
+          url: "/dashboard",
+          query: {
+            active: "equipements",
+            view: "grid",
+            filter: "all",
+          },
+        },
+        { skipNull: true }
+      );
+      push(url);
     }
   };
 
@@ -351,7 +360,7 @@ export default function EquipementInfos() {
             </div>
           </section>
 
-          <dif className="w-full">
+          <div className="w-full">
             {true && (
               <div className="grid grid-cols-3 gap-6">
                 <div
@@ -367,30 +376,18 @@ export default function EquipementInfos() {
                     {actualEquipement.nom}
                   </label>
                   <div className="relative w-3/4 h-1/2">
-                    {actualEquipement.categorie === "routeur" && (
-                      <Image
-                        src={"/routeur.png"}
-                        alt=""
-                        fill
-                        objectFit="cover"
-                      />
-                    )}
-                    {actualEquipement.categorie === "commutateur" && (
-                      <Image
-                        src={"/switch.png"}
-                        alt=""
-                        fill
-                        objectFit="cover"
-                      />
-                    )}
-                    {actualEquipement.categorie === "serveur" && (
-                      <Image
-                        src={"/serveur.png"}
-                        alt=""
-                        fill
-                        objectFit="cover"
-                      />
-                    )}{" "}
+                    <Image
+                      src={
+                        actualEquipement.categorie === "routeur"
+                          ? "/routeur.png"
+                          : actualEquipement.categorie === "commutateur"
+                          ? "/switch.png"
+                          : "/serveur.png"
+                      }
+                      alt=""
+                      fill
+                      objectFit="cover"
+                    />
                   </div>
                   <p className="w-full text-center text-white text-xs font-bold">
                     <span className="text-xs font-normal">IP</span> :{" "}
@@ -417,45 +414,123 @@ export default function EquipementInfos() {
 
                   <div className="p-8 w-full">
                     <div className="grid grid-cols-1 gap-y-2 gap-x-4 w-full">
-                      {/* sysExploitation */}
-                      <div className="w-full flex flex-col gap-1">
-                        <label
-                          htmlFor="debit"
-                          className="text-slate-500 w-full text-sm"
-                        >
-                          Systeme d{"'"}exploitation :{" "}
-                          <span className="text-slate-950 font-semibold">
-                            {" "}
-                            {actualEquipement.sysExploitation}
-                          </span>
-                        </label>
-                      </div>
+                      {actualEquipement.categorie === "serveur" && (
+                        <>
+                          {/* sysExploitation */}
+                          <div className="w-full flex flex-col gap-1">
+                            <label
+                              htmlFor="debit"
+                              className="text-slate-500 w-full text-sm"
+                            >
+                              Systeme d{"'"}exploitation :{" "}
+                              <span className="text-slate-950 font-semibold">
+                                {" "}
+                                {actualEquipement.sysExploitation}
+                              </span>
+                            </label>
+                          </div>
 
-                      {/* capRAM */}
-                      <div className="w-full flex flex-col gap-1">
-                        <label
-                          htmlFor="debit"
-                          className="text-slate-500 w-full text-sm"
-                        >
-                          RAM :{" "}
-                          <span className="text-slate-950 font-semibold">
-                            {actualEquipement.capRAM} Go
-                          </span>
-                        </label>
-                      </div>
+                          {/* capRAM */}
+                          <div className="w-full flex flex-col gap-1">
+                            <label
+                              htmlFor="debit"
+                              className="text-slate-500 w-full text-sm"
+                            >
+                              RAM :{" "}
+                              <span className="text-slate-950 font-semibold">
+                                {actualEquipement.capRAM} Go
+                              </span>
+                            </label>
+                          </div>
 
-                      {/* stockage */}
-                      <div className="w-full flex flex-col gap-1">
-                        <label
-                          htmlFor="debit"
-                          className="text-slate-500 w-full text-sm"
-                        >
-                          Stockage:{" "}
-                          <span className="text-slate-950 font-semibold">
-                            {actualEquipement.capStockage} Go
-                          </span>
-                        </label>
-                      </div>
+                          {/* stockage */}
+                          <div className="w-full flex flex-col gap-1">
+                            <label
+                              htmlFor="debit"
+                              className="text-slate-500 w-full text-sm"
+                            >
+                              Stockage:{" "}
+                              <span className="text-slate-950 font-semibold">
+                                {actualEquipement.capStockage} Go
+                              </span>
+                            </label>
+                          </div>
+                        </>
+                      )}
+
+                      {actualEquipement.categorie === "routeur" && (
+                        <>
+                          {/* passerelle */}
+                          <div className="w-full flex flex-col gap-1">
+                            <label
+                              htmlFor="debit"
+                              className="text-slate-500 w-full text-sm"
+                            >
+                              Passerelle par défaut:{" "}
+                              <span className="text-slate-950 font-semibold">
+                                {actualEquipement.passerelle}
+                              </span>
+                            </label>
+                          </div>
+
+                          {/* protocoleRoutage */}
+                          <div className="w-full flex flex-col gap-1">
+                            <label
+                              htmlFor="debit"
+                              className="text-slate-500 w-full text-sm"
+                            >
+                              Protocoles de routage:{" "}
+                              <span className="text-slate-950 font-semibold">
+                                {actualEquipement.protocoleRoutage}
+                              </span>
+                            </label>
+                          </div>
+                        </>
+                      )}
+
+                      {actualEquipement.categorie === "commutateur" && (
+                        <>
+                          {/* nbPorts */}
+                          <div className="w-full flex flex-col gap-1">
+                            <label
+                              htmlFor="debit"
+                              className="text-slate-500 w-full text-sm"
+                            >
+                              Nombre de ports:{" "}
+                              <span className="text-slate-950 font-semibold">
+                                {actualEquipement.nbPorts}
+                              </span>
+                            </label>
+                          </div>
+
+                          {/* typePorts */}
+                          <div className="w-full flex flex-col gap-1">
+                            <label
+                              htmlFor="debit"
+                              className="text-slate-500 w-full text-sm"
+                            >
+                              Types de ports:{" "}
+                              <span className="text-slate-950 font-semibold">
+                                {actualEquipement.typePorts}
+                              </span>
+                            </label>
+                          </div>
+                        </>
+                      )}
+
+                      {actualEquipement.categorie !== "serveur" && (
+                        <div className="w-full flex flex-col gap-1">
+                          <label
+                            htmlFor="debit"
+                            className="text-slate-500 w-full text-sm"
+                          >
+                            Qualite de Service - QoS:{" "}
+                            <span className="text-slate-950 font-semibold">
+                              {actualEquipement.qualiteService}
+                            </span>
+                          </label>
+                        </div>
+                      )}
 
                       {/* debits */}
                       <div className="w-full flex flex-col gap-1">
@@ -531,7 +606,7 @@ export default function EquipementInfos() {
                     query: {
                       active: "view",
                       equipement: actualEquipement.id,
-                      option: "debit",
+                      type: "debit",
                     },
                   }}
                   className={`flex gap-4 items-center h-9 cursor-pointer rounded-md ${
@@ -569,7 +644,7 @@ export default function EquipementInfos() {
                 </Link>
 
                 <div
-                  onClick={handleDeleteEquipement}
+                  onClick={() => handleDeleteEquipement(actualEquipement.id)}
                   className="flex gap-4 items-center h-9 cursor-pointer w-full"
                 >
                   <label className="whitespace-nowrap flex gap-2 h-full items-center justify-center text-slate-50 bg-red-400 px-4 rounded-md cursor-pointer w-full">
@@ -582,7 +657,7 @@ export default function EquipementInfos() {
               </div>
             )}
             <div ref={bottom}></div>
-          </dif>
+          </div>
         </div>
       </ClientOnly>
     );

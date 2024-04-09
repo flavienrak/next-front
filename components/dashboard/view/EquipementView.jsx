@@ -13,37 +13,14 @@ import { FaArrowLeft } from "react-icons/fa6";
 import { setActualEquipement } from "@/redux/slices/equipementsSlice";
 import { getEquipementController } from "@/lib/controllers/equipement.controller";
 import { isEmpty } from "@/lib/utils/isEmpty";
-
-const maxVariation = 25;
-const bias = 0.7;
-const standardDeviation = maxVariation / 2;
-
-function randomNormalDistribution(mean, standardDeviation) {
-  let u = 0,
-    v = 0;
-  while (u === 0) u = Math.random();
-  while (v === 0) v = Math.random();
-  const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-
-  return z * standardDeviation + mean;
-}
-
-function generateRandom(previousValue) {
-  let variation = Math.round(randomNormalDistribution(0, standardDeviation));
-  if (Math.random() >= bias) {
-    variation *= -1;
-  }
-  previousValue += variation;
-  previousValue = Math.min(Math.max(previousValue, 0), 100);
-
-  return previousValue;
-}
+import { setActualData } from "@/redux/slices/dataSlice";
+import { format, parseISO } from "date-fns";
 
 function isNumber(chaine) {
   return !isNaN(parseFloat(chaine)) && isFinite(chaine);
 }
 
-const options = [
+const types = [
   {
     label: "debit",
     src: "/debits.png",
@@ -62,179 +39,187 @@ const options = [
   },
 ];
 
+function getDate() {
+  const now = new Date().getTime();
+  return Math.floor(now / 1000) * 1000;
+}
+
 export default function EquipementView() {
   const { currentQuery } = useContext(UidContext);
+  const { actualData } = useSelector((state) => state.data);
   const { actualEquipement } = useSelector((state) => state.equipements);
 
   const chartRef = useRef(null);
   const dispatch = useDispatch();
+  const [series, setSeries] = useState([{ name: "Serveur", data: [] }]);
 
-  const [categories, setCategories] = useState(() => [
-    "2024-09-19T00:00:00",
-    "2024-09-19T00:00:01",
-    "2024-09-19T00:00:02",
-    "2024-09-19T00:00:03",
-    "2024-09-19T00:00:04",
-    "2024-09-19T00:00:05",
-    "2024-09-19T00:00:06",
-    "2024-09-19T00:00:07",
-    "2024-09-19T00:00:08",
-    "2024-09-19T00:00:09",
-  ]);
+  const [categories, setCategories] = useState(
+    Array.from({ length: 11 }).map((_, i) => {
+      const prevSecond = getDate() - i * 1000;
+      return new Date(prevSecond).getTime();
+    })
+  );
 
-  const [data, setData] = useState(() => [
-    79, 81, 80, 85, 74, 73, 83, 76, 90, 91,
-  ]);
+  useEffect(() => {
+    const updateDates = () => {
+      setCategories((prevDates) => {
+        return [...prevDates.slice(1), getDate()];
+      });
+    };
 
-  const initialData = {
-    series: [
-      {
-        name: "Serveur",
-        data,
-      },
-    ],
-    options: {
-      chart: {
-        toolbar: {
-          show: false,
-        },
-        animations: {
-          enabled: false,
-        },
-      },
-      title: {
-        text:
-          currentQuery.option === "debit"
-            ? "Debits"
-            : currentQuery.option === "tauxErreur"
-            ? "Taux d'erreurs"
-            : currentQuery.option === "tempsReponse"
-            ? "Temps de reponse"
-            : "Temps de connexion",
-        align: "left",
-      },
-      legend: {
-        show: true,
-        position: "top",
-      },
-      zoom: {
-        enabled: false,
-        autoScale: false,
-      },
-      markers: {
-        size: 1,
-      },
-      colors: [
-        currentQuery.option === "debit"
-          ? "#2eca6a"
-          : currentQuery.option === "tauxErreur"
-          ? "#d06060"
-          : currentQuery.option === "tempsReponse"
-          ? "#4cade6"
-          : "#6363ee",
-      ],
-      fill: {
-        type: "gradient",
-        gradient: {
-          shadeIntensity: 1,
-          opacityFrom: 1,
-          opacityTo: 0,
-          stops: [0, 90, 100],
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      grid: {
+    const updateIntervalId = setInterval(updateDates, 1000);
+
+    return () => clearInterval(updateIntervalId);
+  }, []);
+
+  const options = {
+    chart: {
+      toolbar: {
         show: false,
       },
-      stroke: {
-        width: 2,
-      },
-      yaxis: {
-        max: 100,
-        min: 0,
-        labels: {
-          style: {
-            colors: "#475569",
-          },
-        },
-      },
-      xaxis: {
-        type: "datetime",
-        categories,
-        labels: {
-          format: "ss",
-          style: {
-            colors: "#475569",
-          },
-        },
-        tickAmount: 10,
-      },
-      tooltip: {
-        x: {
-          format: "dd/MM/yy HH:mm:ss",
-        },
-      },
-      responsive: [
-        {
-          breakpoint: 1500,
-          options: {
-            chart: {
-              width: 800,
-            },
-          },
-        },
-      ],
     },
+    title: {
+      text:
+        currentQuery.type === "debit"
+          ? "Debits"
+          : currentQuery.type === "tauxErreur"
+          ? "Taux d'erreurs"
+          : currentQuery.type === "tempsReponse"
+          ? "Temps de reponse"
+          : "Temps de connexion",
+      align: "left",
+    },
+    legend: {
+      show: true,
+      position: "top",
+    },
+    zoom: {
+      enabled: false,
+      autoScale: false,
+    },
+    markers: {
+      size: 1,
+    },
+    colors: [
+      currentQuery.type === "debit"
+        ? "#2eca6a"
+        : currentQuery.type === "tauxErreur"
+        ? "#d06060"
+        : currentQuery.type === "tempsReponse"
+        ? "#4cade6"
+        : "#6363ee",
+    ],
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 1,
+        opacityTo: 0,
+        stops: [0, 90, 100],
+      },
+    },
+    dataLabels: {
+      enabled: false,
+    },
+    grid: {
+      show: false,
+    },
+    stroke: {
+      width: 2,
+    },
+    yaxis: {
+      max:
+        currentQuery.type === "debit"
+          ? 100
+          : currentQuery.type === "tauxErreur"
+          ? 100
+          : 1000,
+      min: 0,
+      labels: {
+        style: {
+          colors: "#475569",
+        },
+      },
+      tickAmount: 10,
+    },
+    xaxis: {
+      type: "datetime",
+      categories,
+      labels: {
+        formatter: function (timestamp) {
+          const date = new Date(timestamp);
+          return format(date, "ss");
+        },
+        style: {
+          colors: "#475569",
+        },
+      },
+      tickAmount: 10,
+    },
+    tooltip: {
+      x: {
+        formatter: function (timestamp) {
+          const date = new Date(timestamp);
+          return format(date, "dd/MM/yy HH:mm:ss");
+        },
+      },
+    },
+    responsive: [
+      {
+        breakpoint: 1500,
+        options: {
+          chart: {
+            width: 800,
+          },
+        },
+      },
+    ],
   };
 
   useEffect(() => {
     if (isNumber(currentQuery?.equipement)) {
       (async () => {
         const res = await getEquipementController(currentQuery.equipement);
-        if (res) {
-          dispatch(setActualEquipement({ equipement: res }));
+        if (res?.equipement && res?.data) {
+          dispatch(setActualData({ actualData: res.data }));
+          dispatch(setActualEquipement({ equipement: res.equipement }));
         }
       })();
     }
   }, [currentQuery?.equipement]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const lastDate = new Date(categories[categories.length - 1]);
-      const newDate = new Date(lastDate.getTime() + 1000);
-      const newDateString = newDate.toISOString();
-      const serverRandomValue = generateRandom(data[9]);
+    if (!isEmpty(actualData)) {
+      if (actualData[currentQuery.type]) {
+        const data = Object.entries(actualData[currentQuery.type]).map(
+          ([cle, valeur]) => {
+            const date = parseISO(cle).getTime();
+            return [date, Number(valeur)];
+          }
+        );
 
-      setCategories((prevCategories) => [
-        ...prevCategories.slice(1),
-        newDateString,
-      ]);
+        setSeries((prev) => {
+          let newState = [...prev];
+          newState[0].data = data;
+          return newState;
+        });
+      }
+    }
+  }, [actualData]);
 
-      setData((prev) => [...prev.slice(1), serverRandomValue]);
-    }, 1000);
-
+  useEffect(() => {
     if (chartRef?.current) {
-      const updatedSeries = initialData.series.map((series, index) => {
-        return {
-          ...series,
-          data,
-        };
+      const updatedSeries = series.map((serie) => {
+        return { ...serie, data: series[0].data };
       });
-
+      chartRef.current.chart.updateSeries(updatedSeries);
       chartRef.current.chart.updateOptions({
         xaxis: {
           categories,
         },
       });
-      chartRef.current.chart.updateSeries(updatedSeries);
     }
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [data]);
+  }, [categories, series[0].data]);
 
   if (!isEmpty(actualEquipement))
     return (
@@ -262,16 +247,36 @@ export default function EquipementView() {
                 </label>
               </div>
             </div>
-            <div className="flex-1 flex justify-center items-center gap-4 w-full">
-              <div className="bg-white h-full flex items-center justify-center px-4 rounded-md">
-                <ReactApexCharts
-                  ref={chartRef}
-                  options={initialData.options}
-                  series={initialData.series}
-                  type={"area"}
-                  height={425}
-                  width={1100}
-                />
+            <div className="flex-1 flex justify-center items-center gap-5 w-full">
+              <div className="relative bg-white h-full flex items-center justify-center px-4 rounded-md">
+                <div className="absolute w-full flex gap-2 items-center self-start justify-end p-4">
+                  <p
+                    className={`rounded-xl text-xs w-max px-4 text-white py-1 ${
+                      currentQuery.type === "debit"
+                        ? "bg-gradient-to-l from-[#2eca6a] to-transparent"
+                        : currentQuery.type === "tauxErreur"
+                        ? "bg-gradient-to-l from-[#d06060] to-transparent"
+                        : currentQuery.type === "tempsReponse"
+                        ? "bg-gradient-to-l from-[#4cade6] to-transparent"
+                        : "bg-gradient-to-l from-[#6363ee] to-transparent"
+                    }`}
+                  >
+                    {currentQuery.type === "debit" && "Mb / s"}
+                    {currentQuery.type === "tauxErreur" && "%"}
+                    {currentQuery.type === "tempsReponse" && "ms"}
+                    {currentQuery.type === "tempsConnexion" && "ms"}
+                  </p>
+                </div>
+                <div className="">
+                  <ReactApexCharts
+                    ref={chartRef}
+                    options={options}
+                    series={series}
+                    type={"area"}
+                    height={425}
+                    width={1100}
+                  />
+                </div>
               </div>
               <div className="flex gap-4 flex-col h-full items-start flex-1">
                 <label
@@ -281,21 +286,21 @@ export default function EquipementView() {
                   Options :
                 </label>
                 <div className="relative grid grid-cols-2 gap-4 w-full">
-                  {options.map((option) => (
+                  {types.map((type) => (
                     <div
-                      key={option.label}
+                      key={type.label}
                       className={`relative flex flex-col justify-between items-center w-28 h-22 gap-2 py-2 bg-white px-3 rounded-md 
                        ${
-                         currentQuery.option === "debit" &&
-                         option.label === currentQuery.option
+                         currentQuery.type === "debit" &&
+                         type.label === currentQuery.type
                            ? "bg-gradient-to-t from-[#2eca6a] to-transparent"
-                           : currentQuery.option === "tauxErreur" &&
-                             option.label === currentQuery.option
+                           : currentQuery.type === "tauxErreur" &&
+                             type.label === currentQuery.type
                            ? "bg-gradient-to-t from-[#d06060] to-transparent"
-                           : currentQuery.option === "tempsReponse" &&
-                             option.label === currentQuery.option
+                           : currentQuery.type === "tempsReponse" &&
+                             type.label === currentQuery.type
                            ? "bg-gradient-to-t from-[#4cade6] to-transparent"
-                           : option.label === currentQuery.option
+                           : type.label === currentQuery.type
                            ? "bg-gradient-to-t from-[#6363ee] to-transparent"
                            : ""
                        }`}
@@ -306,14 +311,14 @@ export default function EquipementView() {
                           query: {
                             active: "view",
                             equipement: actualEquipement.id,
-                            option: option.label,
+                            type: type.label,
                           },
                         }}
                         className={`flex-1 flex flex-col w-full justify-between`}
                       >
                         <div className="relative w-full h-16 rounded-sm ">
                           <Image
-                            src={option.src}
+                            src={type.src}
                             fill
                             alt=""
                             objectFit="cover"
@@ -322,12 +327,12 @@ export default function EquipementView() {
                         </div>
                         <label
                           className={`text-slate-950 w-full capitalize text-center text-sm whitespace-nowrap max-w-full overflow-hidden font-semibold ${
-                            option.label === currentQuery.option
+                            type.label === currentQuery.type
                               ? "cursor-default"
                               : "hover:underline cursor-pointer"
                           }`}
                         >
-                          {option.label}
+                          {type.label}
                         </label>
                       </Link>
                     </div>
